@@ -8,7 +8,7 @@
 
 #include <istream>
 #include <unordered_map>
-#include "../Token.h"
+#include "Token.h"
 
 class Scanner
 {

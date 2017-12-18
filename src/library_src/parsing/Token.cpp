@@ -2,7 +2,7 @@
 // Created by root on 16/12/17.
 //
 
-#include "Token.h"
+#include "parsing/Token.h"
 
 Token::Token(): type(Type::Eof)
 {

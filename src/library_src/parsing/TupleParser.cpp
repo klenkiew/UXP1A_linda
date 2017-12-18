@@ -3,7 +3,7 @@
 //
 
 #include <iostream>
-#include "TupleParser.h"
+#include "parsing/TupleParser.h"
 #include "parsing/exceptions/ParseException.h"
 
 std::unique_ptr<Tuple> TupleParser::parse()
