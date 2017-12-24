@@ -9,16 +9,21 @@
 
 
 class TupleElement {
-private:
-    boost::variant<std::string, int> value;
 
 public:
-    TupleElement(const std::string& value) : value(value) { }
+    enum class Type { Integer, String };
 
-    TupleElement(int value) : value(value) { }
+    TupleElement(const std::string& value) : value(value), type(Type::String) { }
 
-    std::string get_string();
-    int get_int();
+    TupleElement(int value) : value(value), type(Type::Integer) { }
+
+    std::string get_string() const;
+    int get_int() const;
+    Type get_type() const;
+
+private:
+    boost::variant<std::string, int> value;
+    Type type;
 };
 
 

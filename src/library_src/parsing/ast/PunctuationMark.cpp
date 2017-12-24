@@ -2,7 +2,7 @@
 // Created by root on 17/12/17.
 //
 
-#include <parsing/ast/PunctuationMark.h>
+#include "parsing/ast/PunctuationMark.h"
 
 std::string to_string(PunctuationMark punctuation_mark)
 {

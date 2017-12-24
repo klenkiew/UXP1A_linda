@@ -8,6 +8,7 @@
 #include <string>
 #include "parsing/ast/PunctuationMark.h"
 #include <boost/variant.hpp>
+#include "parsing/ast/Operator.h"
 
 class Token
 {
@@ -26,6 +27,7 @@ public:
 
     Token();
     Token(PunctuationMark p);
+    Token(Operator o);
     Token(int number);
 
     static Token from_string_literal(std::string literal);
@@ -35,6 +37,7 @@ public:
     std::string get_identifier() const;
     int get_integer() const;
     PunctuationMark get_punctuation_mark() const;
+    Operator get_operator() const;
 
     Type get_type() const;
 
@@ -43,7 +46,8 @@ private:
     boost::variant<
             int,
             std::string,
-            ::PunctuationMark
+            ::PunctuationMark,
+            ::Operator
     > value;
 
     Token(std::string string, bool string_literal);

@@ -13,6 +13,12 @@ Token::Token(::PunctuationMark p): type(Type::PunctuationMark)
     value = p;
 }
 
+
+Token::Token(::Operator o): type(Type::Operator)
+{
+    value = o;
+}
+
 Token::Token(std::string string, bool string_literal)
 {
     type = string_literal ? Type::StringLiteral : Type::Identifier;
@@ -58,3 +64,10 @@ PunctuationMark Token::get_punctuation_mark() const
 {
     return boost::get<::PunctuationMark>(value);
 }
+
+Operator Token::get_operator() const
+{
+    return boost::get<::Operator>(value);
+}
+
+

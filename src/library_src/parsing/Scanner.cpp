@@ -2,6 +2,8 @@
 // Created by root on 16/12/17.
 //
 
+#include <iostream>
+#include "parsing/ast/Operator.h"
 #include "parsing/exceptions/TokenizerException.h"
 #include "parsing/Scanner.h"
 
@@ -10,8 +12,10 @@ void Scanner::read_next()
     skip_whitespaces();
     if (try_eof() || try_punctuation_mark() || try_integer() || try_string_literal())
         return;
-    const char first = static_cast<const char>(input.peek());
-    const std::string& identifier = read_identifier();
+    const char first = static_cast<const char>(input.get());
+    if (try_complex_operator(first))
+        return;
+    const std::string& identifier = read_identifier(first);
     if (identifier.length() == 0)
         throw TokenizerException("Unknown token - " + std::string(1, first) + " -  at line: " + std::to_string(current_line));
     current_token = Token::from_identifier(identifier);
@@ -39,9 +43,10 @@ bool Scanner::try_integer()
     return true;
 }
 
-std::string Scanner::read_identifier() const
+std::string Scanner::read_identifier(const char first) const
 {
     std::string buffer;
+    buffer += first;
     while (input && (isalnum(input.peek())))
         buffer += input.get();
     return buffer;
@@ -94,3 +99,78 @@ bool Scanner::try_punctuation_mark()
     }
     return false;
 }
+
+bool Scanner::try_complex_operator(const char first)
+{
+    switch (first)
+    {
+        case '=':
+            if (handle_equal())
+                return true;
+            return false;
+        case '!':
+            if (handle_not_equal())
+                return true;
+            break;
+        case '<':
+            handle_less();
+            return true;
+        case '>':
+            handle_greater();
+            return true;
+    }
+    return false;
+}
+
+bool Scanner::handle_equal()
+{
+    if (input.peek() == '=')
+    {
+        input.get();
+        current_token = Operator::Equal;
+        return true;
+    }
+    return false;
+}
+
+bool Scanner::handle_not_equal()
+{
+    if (input.peek() == '=')
+    {
+        input.get();
+        current_token = Operator::NotEqual;
+        return true;
+    }
+    return false;
+}
+
+void Scanner::handle_less()
+{
+    if (input.peek() == '=')
+    {
+        input.get();
+        current_token = Operator::LessEqual;
+    }
+    else
+        current_token = Operator::Less;
+}
+
+void Scanner::handle_greater()
+{
+    if (input.peek() == '=')
+    {
+        input.get();
+        current_token = Operator::GreaterEqual;
+    }
+    else
+        current_token = Operator::Greater;
+}
+
+
+
+
+
+
+
+
+

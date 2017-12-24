@@ -11,7 +11,9 @@ enum class PunctuationMark
 {
     LeftParenthesis,
     RightParenthesis,
-    Comma
+    Comma,
+    Star,
+    Colon
 };
 
 std::string to_string(PunctuationMark punctuation_mark);
