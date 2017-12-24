@@ -1,14 +1,31 @@
 #define BOOST_TEST_NO_LIB
 #include <boost/test/unit_test.hpp>
-#include <parsing/TupleTemplateElementParser.h>
 #include <iostream>
+#include "tuple_space/parsing/TupleParser.h"
+#include "tuple_space/parsing/TupleTemplateElementParser.h"
 
 namespace
 {
-    std::unique_ptr<TupleTemplateElement> get_parser_output(std::string input)
+    std::unique_ptr<TupleTemplateElement> get_parsed_tuple_template_element(std::string input)
     {
         std::istringstream inputStream((input));
         TupleTemplateElementParser parser(std::unique_ptr<Scanner>(new Scanner(inputStream)));
+        auto output = parser.parse_tuple_template_element();
+        return output;
+    }
+
+    std::unique_ptr<TupleTemplate> get_parsed_tuple_template(std::string input)
+    {
+        std::istringstream inputStream((input));
+        TupleTemplateElementParser parser(std::unique_ptr<Scanner>(new Scanner(inputStream)));
+        auto output = parser.parse();
+        return output;
+    }
+
+    std::unique_ptr<Tuple> get_parsed_tuple(std::string input)
+    {
+        std::istringstream inputStream((input));
+        TupleParser parser(std::unique_ptr<Scanner>(new Scanner(inputStream)));
         auto output = parser.parse();
         return output;
     }
@@ -16,28 +33,28 @@ namespace
 
 BOOST_AUTO_TEST_CASE(parser_parses_tuple_template_with_integer)
 {
-    auto tuple_template = get_parser_output("integer:*");
+    auto tuple_template = get_parsed_tuple_template_element("integer:*");
     BOOST_CHECK(tuple_template->matches(50));
     BOOST_CHECK(!tuple_template->matches(std::string("50")));
 }
 
 BOOST_AUTO_TEST_CASE(parser_parses_tuple_template_with_string)
 {
-    auto tuple_template = get_parser_output("string:*");
+    auto tuple_template = get_parsed_tuple_template_element("string:*");
     BOOST_CHECK(tuple_template->matches(std::string("lololo")));
     BOOST_CHECK(!tuple_template->matches(50));
 }
 
 BOOST_AUTO_TEST_CASE(parser_parses_tuple_template_with_operator)
 {
-    auto tuple_template = get_parser_output("integer:>6");
+    auto tuple_template = get_parsed_tuple_template_element("integer:>6");
     BOOST_CHECK(tuple_template->matches(7));
     BOOST_CHECK(!tuple_template->matches(6));
 }
 
 BOOST_AUTO_TEST_CASE(parser_parses_tuple_string_template_with_operator)
 {
-    auto tuple_template = get_parser_output("string:<=\"abc\"");
+    auto tuple_template = get_parsed_tuple_template_element("string:<=\"abc\"");
     BOOST_CHECK(!tuple_template->matches(std::string("abd")));
     BOOST_CHECK(tuple_template->matches(std::string("abb")));
     BOOST_CHECK(tuple_template->matches(std::string("abc")));
@@ -45,8 +62,32 @@ BOOST_AUTO_TEST_CASE(parser_parses_tuple_string_template_with_operator)
 
 BOOST_AUTO_TEST_CASE(parser_parses_tuple_string_template_with_wildcard)
 {
-    auto tuple_template = get_parser_output("string:>\"abc*\"");
+    auto tuple_template = get_parsed_tuple_template_element("string:>\"abc*\"");
     BOOST_CHECK(tuple_template->matches(std::string("abcasdasdasdasd")));
     BOOST_CHECK(!tuple_template->matches(std::string("abbdfgdfgdfg")));
 }
 
+BOOST_AUTO_TEST_CASE(parser_parses_tuple_template)
+{
+    auto tuple_template = get_parsed_tuple_template("(integer:>0)");
+    // too lazy to create the tuple manually...
+    auto tuple = get_parsed_tuple("(1, 2)");
+    auto tuple_matches = get_parsed_tuple("(1)");
+    BOOST_CHECK(!tuple_template->matches(*tuple.get()));
+    BOOST_CHECK(tuple_template->matches(*tuple_matches.get()));
+}
+
+BOOST_AUTO_TEST_CASE(parser_parses_tuple_template_with_multiple_elements)
+{
+    auto tuple_template = get_parsed_tuple_template("(string:\"aa*b\", integer:>0)");
+
+    auto tuple_matches = get_parsed_tuple("(\"aaab\", 2)");
+    auto tuple_wrong_string = get_parsed_tuple("(\"aaaa\", 1)");
+    auto tuple_one_element = get_parsed_tuple("(\"aaab\")");
+    auto tuple_three_elements = get_parsed_tuple("(\"aaab\", 1, 2)");
+
+    BOOST_CHECK(tuple_template->matches(*tuple_matches.get()));
+    BOOST_CHECK(!tuple_template->matches(*tuple_wrong_string.get()));
+    BOOST_CHECK(!tuple_template->matches(*tuple_one_element.get()));
+    BOOST_CHECK(!tuple_template->matches(*tuple_three_elements.get()));
+}

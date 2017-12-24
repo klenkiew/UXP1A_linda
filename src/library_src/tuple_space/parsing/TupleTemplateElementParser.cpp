@@ -2,14 +2,26 @@
 // Created by root on 18/12/17.
 //
 
+#include "tuple_space/TupleTemplate.h"
 #include "tuple_space/IntegerComparerTemplate.h"
 #include "tuple_space/StringComparerTemplate.h"
 #include "tuple_space/parsing/exceptions/ParseException.h"
 #include "tuple_space/parsing/TupleTemplateElementParser.h"
 
-std::unique_ptr<TupleTemplateElement> TupleTemplateElementParser::parse()
+std::unique_ptr<TupleTemplate> TupleTemplateElementParser::parse()
 {
-    advance();
+    skip(PunctuationMark::LeftParenthesis);
+    std::vector<std::unique_ptr<TupleTemplateElement>> elements;
+    do
+    {
+        elements.push_back(parse_tuple_template_element());
+    } while (try_skip_comma());
+    skip(PunctuationMark::RightParenthesis);
+    return std::unique_ptr<TupleTemplate>(new TupleTemplate(std::move(elements)));
+}
+
+std::unique_ptr<TupleTemplateElement> TupleTemplateElementParser::parse_tuple_template_element()
+{
     TupleElement::Type required_type = read_type();
 
     skip(PunctuationMark::Colon);
@@ -121,4 +133,11 @@ std::unique_ptr<TupleTemplateElement> TupleTemplateElementParser::parse_equal_te
         return parse_string_comparer_template(Operator::Equal);
 
     throw std::invalid_argument("type");
+}
+
+explicit TupleTemplateElementParser::TupleTemplateElementParser(std::unique_ptr<Scanner> scanner)
+        : scanner(std::move(scanner))
+{
+    // move the scanner to the first position in the inner stream
+    advance();
 }

@@ -23,7 +23,12 @@ public:
         elements.push_back(std::move(element));
     }
 
-    TupleElement get(int index)
+    unsigned long size() const
+    {
+        return elements.size();
+    }
+
+    const TupleElement& get(int index) const
     {
         return *elements[index].get();
     }
