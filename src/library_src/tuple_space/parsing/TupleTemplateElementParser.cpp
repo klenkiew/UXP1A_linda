@@ -8,6 +8,14 @@
 #include "tuple_space/parsing/exceptions/ParseException.h"
 #include "tuple_space/parsing/TupleTemplateElementParser.h"
 
+
+TupleTemplateElementParser::TupleTemplateElementParser(std::unique_ptr<Scanner> scanner)
+        : scanner(std::move(scanner))
+{
+    // move the scanner to the first position in the inner stream
+    advance();
+}
+
 std::unique_ptr<TupleTemplate> TupleTemplateElementParser::parse()
 {
     skip(PunctuationMark::LeftParenthesis);
@@ -133,11 +141,4 @@ std::unique_ptr<TupleTemplateElement> TupleTemplateElementParser::parse_equal_te
         return parse_string_comparer_template(Operator::Equal);
 
     throw std::invalid_argument("type");
-}
-
-explicit TupleTemplateElementParser::TupleTemplateElementParser(std::unique_ptr<Scanner> scanner)
-        : scanner(std::move(scanner))
-{
-    // move the scanner to the first position in the inner stream
-    advance();
 }
