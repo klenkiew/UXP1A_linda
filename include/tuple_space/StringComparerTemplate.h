@@ -6,7 +6,7 @@
 #define UXP1A_LINDA_STRINGCOMPARERTEMPLATE_H
 
 
-#include "TupleElement.h"
+#include "tuple_space/TupleElement.h"
 #include "RequiredTypeTemplate.h"
 #include "ComparerTemplate.h"
 

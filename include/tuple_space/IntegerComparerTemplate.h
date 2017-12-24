@@ -5,7 +5,7 @@
 #ifndef UXP1A_LINDA_INTEGERCOMPARERTEMPLATE_H
 #define UXP1A_LINDA_INTEGERCOMPARERTEMPLATE_H
 
-#include "parsing/ast/Operator.h"
+#include "tuple_space/parsing/ast/Operator.h"
 #include "TupleTemplateElement.h"
 #include "RequiredTypeTemplate.h"
 #include "ComparerTemplate.h"

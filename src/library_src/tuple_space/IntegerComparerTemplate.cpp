@@ -2,7 +2,7 @@
 // Created by root on 18/12/17.
 //
 
-#include "parsing/IntegerComparerTemplate.h"
+#include "tuple_space/IntegerComparerTemplate.h"
 
 IntegerComparerTemplate::IntegerComparerTemplate(Operator operator_, int to_compare) :
         RequiredTypeTemplate(TupleElement::Type::Integer),

@@ -6,10 +6,10 @@
 #define UXP1A_LINDA_COMPARERTEMPLATE_H
 
 
-#include <TupleElement.h>
+#include <tuple_space/TupleElement.h>
 #include <iostream>
-#include "parsing/RequiredTypeTemplate.h"
-#include "parsing/ast/Operator.h"
+#include "RequiredTypeTemplate.h"
+#include "tuple_space/parsing/ast/Operator.h"
 #include "TupleTemplateElement.h"
 #include "RequiredTypeTemplate.h"
 

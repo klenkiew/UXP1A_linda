@@ -6,8 +6,8 @@
 #define UXP1A_LINDA_TUPLEPARSER_H
 
 
-#include "Tuple.h"
-#include "parsing/Scanner.h"
+#include "tuple_space/Tuple.h"
+#include "Scanner.h"
 
 class TupleParser
 {

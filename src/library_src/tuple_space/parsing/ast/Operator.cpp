@@ -2,7 +2,7 @@
 // Created by root on 18/12/17.
 //
 
-#include "parsing/ast/Operator.h"
+#include "tuple_space/parsing/ast/Operator.h"
 #include <unordered_map>
 
 namespace

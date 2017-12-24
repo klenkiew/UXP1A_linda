@@ -6,9 +6,9 @@
 #define UXP1A_LINDA_TOKEN_H
 
 #include <string>
-#include "parsing/ast/PunctuationMark.h"
+#include "tuple_space/parsing/ast/PunctuationMark.h"
 #include <boost/variant.hpp>
-#include "parsing/ast/Operator.h"
+#include "tuple_space/parsing/ast/Operator.h"
 
 class Token
 {

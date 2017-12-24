@@ -6,7 +6,7 @@
 #define UXP1A_LINDA_TUPLETEMPLATEELEMENTPARSER_H
 
 #include "Scanner.h"
-#include "TupleTemplateElement.h"
+#include "tuple_space/TupleTemplateElement.h"
 
 class TupleTemplateElementParser
 {

@@ -3,9 +3,8 @@
 //
 
 #include <regex>
-#include <string>
 #include <boost/algorithm/string/replace.hpp>
-#include "parsing/StringComparerTemplate.h"
+#include "tuple_space/StringComparerTemplate.h"
 
 StringComparerTemplate::StringComparerTemplate(Operator operator_, std::string to_compare) :
         RequiredTypeTemplate(TupleElement::Type::String), ComparerTemplate(operator_, to_compare)

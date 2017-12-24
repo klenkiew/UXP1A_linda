@@ -2,10 +2,10 @@
 // Created by root on 18/12/17.
 //
 
-#include "parsing/IntegerComparerTemplate.h"
-#include "parsing/StringComparerTemplate.h"
-#include "parsing/exceptions/ParseException.h"
-#include "parsing/TupleTemplateElementParser.h"
+#include "tuple_space/IntegerComparerTemplate.h"
+#include "tuple_space/StringComparerTemplate.h"
+#include "tuple_space/parsing/exceptions/ParseException.h"
+#include "tuple_space/parsing/TupleTemplateElementParser.h"
 
 std::unique_ptr<TupleTemplateElement> TupleTemplateElementParser::parse()
 {

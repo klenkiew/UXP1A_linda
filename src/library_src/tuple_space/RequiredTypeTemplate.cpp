@@ -2,7 +2,7 @@
 // Created by root on 18/12/17.
 //
 
-#include "parsing/RequiredTypeTemplate.h"
+#include "tuple_space/RequiredTypeTemplate.h"
 
 bool RequiredTypeTemplate::matches(const TupleElement &tuple_element)
 {

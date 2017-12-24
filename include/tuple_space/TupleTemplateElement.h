@@ -6,7 +6,7 @@
 #define UXP1A_LINDA_TUPLETEMPLATEELEMENT_H
 
 
-#include "TupleElement.h"
+#include "tuple_space/TupleElement.h"
 
 class TupleTemplateElement
 {

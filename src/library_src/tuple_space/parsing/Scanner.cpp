@@ -3,9 +3,9 @@
 //
 
 #include <iostream>
-#include "parsing/ast/Operator.h"
-#include "parsing/exceptions/TokenizerException.h"
-#include "parsing/Scanner.h"
+#include "tuple_space/parsing/ast/Operator.h"
+#include "tuple_space/parsing/exceptions/TokenizerException.h"
+#include "tuple_space/parsing/Scanner.h"
 
 void Scanner::read_next()
 {
