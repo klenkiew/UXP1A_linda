@@ -19,11 +19,8 @@ private:
     std::unique_ptr<Scanner> scanner;
 
     void advance() const;
-
     bool is(PunctuationMark punctuation_mark) const;
-
     void skip(PunctuationMark punctuation_mark) const;
-
     bool try_skip_comma() const;
 
     std::unique_ptr<TupleElement> parse_tuple_element();

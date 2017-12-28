@@ -9,8 +9,7 @@
 class Scanner
 {
 public:
-    Scanner(std::istream& input)
-            : input(input)
+    Scanner(std::istream& input): input(input)
     {}
 
     Scanner(const Scanner&) = delete;

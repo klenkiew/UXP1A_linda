@@ -24,7 +24,8 @@ private:
     void skip(PunctuationMark punctuation_mark) const;
     bool try_skip_comma() const;
     TupleElement::Type read_type() const;
-    bool is_operator();
+    bool is_operator() const;
+
     std::unique_ptr<TupleTemplateElement> parse_comparer_template(TupleElement::Type type);
     std::unique_ptr<TupleTemplateElement> parse_equal_template(TupleElement::Type type);
     std::unique_ptr<TupleTemplateElement> parse_string_comparer_template(const Operator &operator_) const;

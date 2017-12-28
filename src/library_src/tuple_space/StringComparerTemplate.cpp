@@ -21,8 +21,16 @@ bool StringComparerTemplate::matches(const TupleElement &tuple_element)
 
 bool StringComparerTemplate::matches_wildcard(const std::string string)
 {
-    const std::regex regex = std::regex(wildcard_to_regex(to_compare));
+    const std::regex& regex = getRegex();
     return std::regex_match(string, regex);
+}
+
+std::regex& StringComparerTemplate::getRegex()
+{
+    if (cachedRegex == nullptr)
+        cachedRegex = std::unique_ptr<std::regex>(new std::regex(wildcard_to_regex(to_compare)));
+
+    return *cachedRegex;
 }
 
 std::string StringComparerTemplate::wildcard_to_regex(const std::string &wildcard_string)

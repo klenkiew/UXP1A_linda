@@ -4,30 +4,16 @@
 #include "TupleElement.h"
 
 class Tuple {
+public:
+    Tuple();
+    Tuple(std::vector<std::unique_ptr<TupleElement>> elements);
+
+    void add_element(std::unique_ptr<TupleElement> element);
+    unsigned long size() const;
+    const TupleElement& get(int index) const;
+
 private:
     std::vector<std::unique_ptr<TupleElement>> elements;
-
-public:
-    Tuple()
-    { }
-
-    Tuple(std::vector<std::unique_ptr<TupleElement>> elements) : elements(std::move(elements))
-    { }
-
-    void add_element(std::unique_ptr<TupleElement> element)
-    {
-        elements.push_back(std::move(element));
-    }
-
-    unsigned long size() const
-    {
-        return elements.size();
-    }
-
-    const TupleElement& get(int index) const
-    {
-        return *elements[index].get();
-    }
 };
 
 

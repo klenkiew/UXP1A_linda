@@ -11,10 +11,6 @@ class IntegerComparerTemplate: public RequiredTypeTemplate, public ComparerTempl
 public:
     IntegerComparerTemplate(Operator operator_, int to_compare);
     virtual bool matches(const TupleElement& tuple_element);
-
-private:
-    Operator operator_;
-    int to_compare;
 };
 
 

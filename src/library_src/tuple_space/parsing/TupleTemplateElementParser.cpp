@@ -86,7 +86,7 @@ bool TupleTemplateElementParser::try_skip_comma() const
     return false;
 }
 
-bool TupleTemplateElementParser::is_operator()
+bool TupleTemplateElementParser::is_operator() const
 {
     return scanner->get_token().get_type() == Token::Type::Operator;
 }
