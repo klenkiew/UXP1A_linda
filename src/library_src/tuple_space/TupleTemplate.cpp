@@ -1,7 +1,3 @@
-//
-// Created by root on 24/12/17.
-//
-
 #include "tuple_space/TupleTemplate.h"
 
 bool TupleTemplate::matches(const Tuple& tuple) const

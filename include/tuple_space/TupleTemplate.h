@@ -1,7 +1,3 @@
-//
-// Created by root on 24/12/17.
-//
-
 #ifndef UXP1A_LINDA_TUPLETEMPLATE_H
 #define UXP1A_LINDA_TUPLETEMPLATE_H
 

@@ -1,7 +1,3 @@
-//
-// Created by root on 16/12/17.
-//
-
 #include "tuple_space/parsing/Token.h"
 
 Token::Token(): type(Type::Eof)

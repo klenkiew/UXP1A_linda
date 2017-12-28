@@ -1,7 +1,3 @@
-//
-// Created by root on 17/12/17.
-//
-
 #include "tuple_space/parsing/ast/PunctuationMark.h"
 
 std::string to_string(PunctuationMark punctuation_mark)

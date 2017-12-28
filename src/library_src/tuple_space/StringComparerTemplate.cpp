@@ -1,7 +1,3 @@
-//
-// Created by root on 18/12/17.
-//
-
 #include <regex>
 #include <boost/algorithm/string/replace.hpp>
 #include "tuple_space/StringComparerTemplate.h"

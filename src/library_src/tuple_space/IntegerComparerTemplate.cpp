@@ -1,7 +1,3 @@
-//
-// Created by root on 18/12/17.
-//
-
 #include "tuple_space/IntegerComparerTemplate.h"
 
 IntegerComparerTemplate::IntegerComparerTemplate(Operator operator_, int to_compare) :

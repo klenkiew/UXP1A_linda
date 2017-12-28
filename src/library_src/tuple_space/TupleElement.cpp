@@ -1,7 +1,3 @@
-//
-// Created by root on 16/12/17.
-//
-
 #include "tuple_space/TupleElement.h"
 
 std::string TupleElement::get_string() const

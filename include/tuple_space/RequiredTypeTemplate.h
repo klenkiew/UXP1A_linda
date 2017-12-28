@@ -1,7 +1,3 @@
-//
-// Created by root on 18/12/17.
-//
-
 #ifndef UXP1A_LINDA_REQUIREDTYPETEMPLATE_H
 #define UXP1A_LINDA_REQUIREDTYPETEMPLATE_H
 

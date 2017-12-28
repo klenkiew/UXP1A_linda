@@ -1,7 +1,3 @@
-//
-// Created by root on 16/12/17.
-//
-
 #ifndef UXP1A_LINDA_SCANNER_H
 #define UXP1A_LINDA_SCANNER_H
 

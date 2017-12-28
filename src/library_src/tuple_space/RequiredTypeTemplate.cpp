@@ -1,7 +1,3 @@
-//
-// Created by root on 18/12/17.
-//
-
 #include "tuple_space/RequiredTypeTemplate.h"
 
 bool RequiredTypeTemplate::matches(const TupleElement &tuple_element)

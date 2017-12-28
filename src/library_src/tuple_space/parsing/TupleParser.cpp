@@ -1,7 +1,3 @@
-//
-// Created by root on 16/12/17.
-//
-
 #include <iostream>
 #include "tuple_space/parsing/TupleParser.h"
 #include "tuple_space/parsing/exceptions/ParseException.h"
