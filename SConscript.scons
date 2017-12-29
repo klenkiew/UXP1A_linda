@@ -35,6 +35,9 @@ if platform != "win32":
     num_cpu = multiprocessing.cpu_count()
     env.SetOption('num_jobs', num_cpu)
 
+# libraries to link
+link_libs = ['boost_log', 'pthread', 'boost_system', 'boost_filesystem', 'rt']
+
 # app's lib prep
 app_lib_src = list(find_files(path.join("src", "library_src"), "*.cpp"))
 env.StaticLibrary("appLib", app_lib_src)
@@ -44,9 +47,16 @@ app_src = env.Glob(path.join("src", "*.cpp"))
 app = env.Program(path.join("..", "app"), app_src, LIBS='appLib')
 
 # tests preparation
-tests_files = [env.Glob(path.join("tests_src", "*", "*.cpp")), path.join("tests_src", "main.cpp")]
+tests_files = [env.Glob(path.join("tests_src", "unit_tests", "*", "*.cpp")),
+                        path.join("tests_src", "unit_tests", "main.cpp")]
 tests = env.Program(path.join("..", "tests"), tests_files,
-                    LIBS=['appLib', 'boost_log', 'pthread', 'boost_system', 'boost_filesystem', 'rt'])
+                    LIBS = ['appLib'] + link_libs)
+
+# integration tests
+integration_tests_files = [env.Glob(path.join("tests_src", "integration_tests", "*", "*.cpp")),
+                                    path.join("tests_src", "integration_tests", "main.cpp")]
+integration_tests = env.Program(path.join("..", "integration_tests"), integration_tests_files,
+                    LIBS = ['appLib'] + link_libs)
 
 # "$ scons" default build
-env.Default(app, tests)
+env.Default(app, tests, integration_tests)

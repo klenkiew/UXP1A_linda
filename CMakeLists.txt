@@ -13,7 +13,8 @@ find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
 file(GLOB APP_SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(GLOB_RECURSE LIB_SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/library_src/*.cpp)
-file(GLOB_RECURSE TESTS_SOURCE_FILES ${PROJECT_SOURCE_DIR}/tests_src/*.cpp ${PROJECT_SOURCE_DIR}/tests_src/*/*.cpp)
+file(GLOB_RECURSE TESTS_SOURCE_FILES ${PROJECT_SOURCE_DIR}/tests_src/unit_tests/*.cpp
+        ${PROJECT_SOURCE_DIR}/tests_src/unit_tests/*/*.cpp)
 
 message(STATUS "APP_FILES " ${APP_SOURCE_FILES})
 message(STATUS "LIB_FILES " ${LIB_SOURCE_FILES})
