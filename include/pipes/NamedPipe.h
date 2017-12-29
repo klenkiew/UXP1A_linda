@@ -15,14 +15,19 @@ public:
     };
 
     explicit NamedPipe(const std::string &fifoPath);
+    ~NamedPipe();
+
     void create();
     void createIfNotExists();
     void open(Mode mode, bool blocking = true);
+    void open(Mode mode, int timeout_seconds);
     int close();
     void destroy();
 
     void write(const std::string& data);
+    void write(const std::string &data, int timeout_seconds);
     std::string read();
+    std::string read(int timeout_seconds);
 
 private:
     static const int fifo_permissions = 777;
@@ -34,6 +39,9 @@ private:
 
     int get_flags(Mode mode, bool b);
     int get_fifo_buffer_size();
+
+    void throw_on_error(const std::string& message) const;
+
 };
 
 

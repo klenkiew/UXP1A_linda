@@ -1,10 +1,13 @@
 #include <sys/stat.h>
 #include <pipes/exceptions/NamedPipeException.h>
 #include "pipes/NamedPipe.h"
-#include <stdio.h>
+#include <cstdio>
 #include <boost/filesystem.hpp>
 #include <fcntl.h>
 #include <iostream>
+#include <pipes/utils/SystemTimer.h>
+#include <pipes/utils/TimeoutHandler.h>
+#include <pipes/exceptions/NamedPipeTimeoutException.h>
 
 NamedPipe::NamedPipe(const std::string &fifoPath) : fifo_path(fifoPath)
 {}
@@ -26,20 +29,44 @@ void NamedPipe::open(NamedPipe::Mode mode, bool blocking)
     const int flags = get_flags(mode, blocking);
     const int fifo_descriptor = ::open(fifo_path.c_str(), flags);
     if (fifo_descriptor < 0)
-        throw NamedPipeException("Unable to open the pipe. ERR: " + std::to_string(errno));
-    
+        throw_on_error("Unable to open the pipe. ERR: " + std::to_string(errno));
+
     this->fifo_descriptor = fifo_descriptor;
     fifo_buffer_size = get_fifo_buffer_size();
 }
-
 
 void NamedPipe::write(const std::string &data)
 {
     // TODO replace with a logging mechanism
     std::cout << "data to write: " + data << std::endl;
+
     if (::write(fifo_descriptor, data.c_str(), data.length()) < data.length())
-        throw NamedPipeException("Error during writing to a pipe.");
+        throw_on_error("Error during writing to a pipe.");
+
     std::cout << "data written: " + data << std::endl;
+}
+
+
+void NamedPipe::write(const std::string& data, int timeout_seconds)
+{
+    // Initialize file descriptor sets
+    fd_set read_fds, write_fds, except_fds;
+    FD_ZERO(&read_fds);
+    FD_ZERO(&write_fds);
+    FD_ZERO(&except_fds);
+    FD_SET(fifo_descriptor, &write_fds);
+
+    // Set timeout
+    struct timeval timeout;
+    timeout.tv_sec = timeout_seconds;
+    timeout.tv_usec = 0;
+
+    // Wait for input to become ready or until the time out; the first parameter is
+    // 1 more than the largest file descriptor in any of the sets
+    if (select(fifo_descriptor + 1, &read_fds, &write_fds, &except_fds, &timeout) != 1)
+        throw NamedPipeTimeoutException("Write timed out");
+
+    return write(data);
 }
 
 std::string NamedPipe::read()
@@ -48,7 +75,7 @@ std::string NamedPipe::read()
     const int buffer_size = get_fifo_buffer_size();
     std::vector<char> buffer((unsigned long) buffer_size);
     ssize_t bytes_read = ::read(fifo_descriptor, &buffer[0], (size_t) buffer_size);
-    std::cout << "bytes read: " + bytes_read << std::endl;
+    std::cout << "bytes read: " + std::to_string(bytes_read) << std::endl;
 
     if (bytes_read < 0)
         throw NamedPipeException("Cannot read from a pipe.");
@@ -56,11 +83,30 @@ std::string NamedPipe::read()
     return std::string(buffer.begin(), buffer.begin() + bytes_read);
 }
 
+std::string NamedPipe::read(int timeout_seconds)
+{
+    // Initialize file descriptor sets
+    fd_set read_fds, write_fds, except_fds;
+    FD_ZERO(&read_fds);
+    FD_ZERO(&write_fds);
+    FD_ZERO(&except_fds);
+    FD_SET(fifo_descriptor, &read_fds);
+
+    // Set timeout
+    struct timeval timeout;
+    timeout.tv_sec = timeout_seconds;
+    timeout.tv_usec = 0;
+
+    // Wait for input to become ready or until the time out; the first parameter is
+    // 1 more than the largest file descriptor in any of the sets
+    if (select(fifo_descriptor + 1, &read_fds, &write_fds, &except_fds, &timeout) != 1)
+        throw NamedPipeTimeoutException("Read timed out");
+
+    return read();
+}
+
 int NamedPipe::close()
 {
-    if (fifo_descriptor < 0)
-        throw NamedPipeException("Invalid state - a pipe must be opened to be closed.");
-
     const int close_result = ::close(fifo_descriptor);
     if (close_result == 0)
         fifo_descriptor = -1;
@@ -72,8 +118,17 @@ void NamedPipe::destroy()
 {
     if (fifo_descriptor >= 0)
         close();
-    
+
     boost::filesystem::remove(fifo_path);
+}
+
+void NamedPipe::throw_on_error(const std::string& message) const
+{
+    // EINTR - timeout
+    if (errno == 4)
+        throw NamedPipeTimeoutException("TIMEOUT. " + message);
+
+    throw NamedPipeException(message);
 }
 
 int NamedPipe::get_flags(Mode mode, bool blocking)
@@ -109,6 +164,22 @@ int NamedPipe::get_fifo_buffer_size()
 
     fifo_buffer_size = pipe_size;
     return fifo_buffer_size;
+}
+
+void NamedPipe::open(NamedPipe::Mode mode, int timeout_seconds)
+{
+    TimeoutHandler timeout_handler(timeout_seconds);
+    open(mode);
+
+    // actually never happens - because open returns an error (EINTR) and an exception is thrown earlier
+    // but let's keep it just in case
+    if (timeout_handler.timed_out())
+        throw NamedPipeTimeoutException("Open timed out.");
+}
+
+NamedPipe::~NamedPipe()
+{
+    close();
 }
 
 
