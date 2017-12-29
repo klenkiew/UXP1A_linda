@@ -1,13 +1,19 @@
-#include <sys/stat.h>
-#include <pipes/exceptions/NamedPipeException.h>
 #include "pipes/NamedPipe.h"
-#include <cstdio>
-#include <boost/filesystem.hpp>
-#include <fcntl.h>
-#include <iostream>
+
+#include <pipes/exceptions/NamedPipeException.h>
 #include <pipes/utils/SystemTimer.h>
 #include <pipes/utils/TimeoutHandler.h>
 #include <pipes/exceptions/NamedPipeTimeoutException.h>
+
+#include <sys/stat.h>
+#include <cstdio>
+#include <iostream>
+#include <fcntl.h>
+
+#include <boost/filesystem.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
 
 NamedPipe::NamedPipe(const std::string &fifoPath) : fifo_path(fifoPath)
 {}
@@ -37,13 +43,12 @@ void NamedPipe::open(NamedPipe::Mode mode, bool blocking)
 
 void NamedPipe::write(const std::string &data)
 {
-    // TODO replace with a logging mechanism
-    std::cout << "data to write: " + data << std::endl;
+    BOOST_LOG_TRIVIAL(debug) << "Data to write: " + data;
 
     if (::write(fifo_descriptor, data.c_str(), data.length()) < data.length())
         throw_on_error("Error during writing to a pipe.");
 
-    std::cout << "data written: " + data << std::endl;
+    BOOST_LOG_TRIVIAL(debug) << "Data written: " + data;
 }
 
 
@@ -71,11 +76,11 @@ void NamedPipe::write(const std::string& data, int timeout_seconds)
 
 std::string NamedPipe::read()
 {
-    std::cout << "NamedPipe::read" << std::endl;
+    BOOST_LOG_TRIVIAL(debug) << "NamedPipe::read";
     const int buffer_size = get_fifo_buffer_size();
     std::vector<char> buffer((unsigned long) buffer_size);
     ssize_t bytes_read = ::read(fifo_descriptor, &buffer[0], (size_t) buffer_size);
-    std::cout << "bytes read: " + std::to_string(bytes_read) << std::endl;
+    BOOST_LOG_TRIVIAL(debug) << "Bytes read: " + std::to_string(bytes_read) << std::endl;
 
     if (bytes_read < 0)
         throw NamedPipeException("Cannot read from a pipe.");

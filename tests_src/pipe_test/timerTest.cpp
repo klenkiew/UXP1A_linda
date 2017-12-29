@@ -3,6 +3,9 @@
 
 #include <string>
 #include <pipes/utils/SystemTimer.h>
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
 
 namespace
 {
@@ -11,7 +14,7 @@ namespace
     void timer_handler(int sig, siginfo_t *si, void *uc)
     {
         flag = true;
-        printf("I am timer %s\n", (char *) si->si_value.sival_ptr);
+        BOOST_LOG_TRIVIAL(debug) << "I am timer " << (char *) si->si_value.sival_ptr;
     }
 }
 

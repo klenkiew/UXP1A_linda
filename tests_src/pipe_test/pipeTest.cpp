@@ -7,6 +7,9 @@
 #include <string>
 #include <thread>
 #include <pipes/exceptions/NamedPipeTimeoutException.h>
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
 
 namespace
 {
@@ -38,14 +41,14 @@ namespace
 BOOST_AUTO_TEST_CASE(pipe_works)
 {
     const std::string pipe_path = get_random_pipe_path();
-    std::cout << "pipe path: " + pipe_path << std::endl;
+    BOOST_LOG_TRIVIAL(debug) << "Pipe path: " + pipe_path;
     std::thread write_thread([&]() -> void
                              {
                                  NamedPipe pipe(pipe_path);
                                  pipe.createIfNotExists();
-                                 std::cout << "pipe created" << std::endl;
+                                 BOOST_LOG_TRIVIAL(debug) << "Pipe created";
                                  pipe.open(NamedPipe::Mode::Write);
-                                 std::cout << "pipe opened for write" << std::endl;
+                                 BOOST_LOG_TRIVIAL(debug) << "Pipe opened for write";
                                  pipe.write("pipe_test");
                                  pipe.close();
                              });
@@ -54,12 +57,12 @@ BOOST_AUTO_TEST_CASE(pipe_works)
                                 NamedPipe pipe(pipe_path);
                                 PipeDestroyer pipeDestroyer(pipe);
                                 pipe.createIfNotExists();
-                                std::cout << "pipe created" << std::endl;
+                                BOOST_LOG_TRIVIAL(debug) << "Pipe created";
                                 pipe.open(NamedPipe::Mode::Read);
-                                std::cout << "pipe opened for read" << std::endl;
+                                BOOST_LOG_TRIVIAL(debug) << "Pipe opened for read";
                                 std::string read = pipe.read();
                                 pipe.close();
-                                std::cout << "read from pipe: " + read << std::endl;
+                                BOOST_LOG_TRIVIAL(debug) << "String read from pipe: " + read;
                                 BOOST_CHECK(read == "pipe_test");
                             });
     write_thread.join();
@@ -69,14 +72,14 @@ BOOST_AUTO_TEST_CASE(pipe_works)
 BOOST_AUTO_TEST_CASE(pipe_read_timeout_works)
 {
     const std::string pipe_path = get_random_pipe_path();
-    std::cout << "pipe path: " + pipe_path << std::endl;
+    BOOST_LOG_TRIVIAL(debug) << "pipe path: " + pipe_path;
     std::thread write_thread([&]() -> void
                              {
                                  NamedPipe pipe(pipe_path);
                                  pipe.createIfNotExists();
-                                 std::cout << "pipe created" << std::endl;
+                                 BOOST_LOG_TRIVIAL(debug) << "pipe created";
                                  pipe.open(NamedPipe::Mode::Write);
-                                 std::cout << "pipe opened for write" << std::endl;
+                                 BOOST_LOG_TRIVIAL(debug) << "pipe opened for write";
                                  sleep(3);
                              });
     std::thread read_thread([&]() -> void
@@ -84,11 +87,11 @@ BOOST_AUTO_TEST_CASE(pipe_read_timeout_works)
                                 NamedPipe pipe(pipe_path);
                                 PipeDestroyer pipeDestroyer(pipe);
                                 pipe.createIfNotExists();
-                                std::cout << "pipe created" << std::endl;
+                                BOOST_LOG_TRIVIAL(debug) << "pipe created";
                                 pipe.open(NamedPipe::Mode::Read);
-                                std::cout << "pipe opened for read" << std::endl;
+                                BOOST_LOG_TRIVIAL(debug) << "pipe opened for read";
                                 BOOST_CHECK_THROW(pipe.read(2), NamedPipeTimeoutException);
-                                std::cout << "read timed out" << std::endl;
+                                BOOST_LOG_TRIVIAL(debug) << "read timed out";
                             });
     write_thread.join();
     read_thread.join();
@@ -100,6 +103,6 @@ BOOST_AUTO_TEST_CASE(pipe_works_with_timeout)
     NamedPipe pipe(pipe_path);
     PipeDestroyer pipeDestroyer(pipe);
     pipe.createIfNotExists();
-    std::cout << "pipe created" << std::endl;
+    BOOST_LOG_TRIVIAL(debug) << "pipe created";
     BOOST_CHECK_THROW(pipe.open(NamedPipe::Mode::Read, 2), NamedPipeTimeoutException);
 }
