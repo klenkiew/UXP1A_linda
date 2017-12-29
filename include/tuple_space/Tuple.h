@@ -1,6 +1,7 @@
 #ifndef UXP1A_LINDA_TUPLE_H
 #define UXP1A_LINDA_TUPLE_H
 
+#include <vector>
 #include "TupleElement.h"
 
 class Tuple {
