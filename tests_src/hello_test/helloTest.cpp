@@ -1,6 +1,6 @@
 #define BOOST_TEST_NO_LIB
-#include <boost/test/unit_test.hpp>
 
+#include <boost/test/unit_test.hpp>
 #include "lol.hpp"
 
 BOOST_AUTO_TEST_CASE(first_test)

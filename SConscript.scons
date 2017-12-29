@@ -1,5 +1,13 @@
+# find files recursively
+def find_files(directory='.', pattern='*'):
+    for root, dirs, files in os.walk(directory):
+        for basename in files:
+            filename = os.path.join(root, basename)
+            yield env.Glob(filename, pattern)
+
+
 # MAGIC SEQUENCE: win32 encoding problems
-import sys
+import sys, os
 reload(sys)
 sys.setdefaultencoding('utf8')
 # END OF MAGIC SEQUENCE
@@ -18,6 +26,7 @@ boost_libs = path.join(boost_prefix, "libs")
 # environment prep
 env = Environment()
 env.Prepend(CPPPATH = [boost_prefix, ".."], LIBPATH=[boost_libs, "."])
+env.Append(CXXFLAGS='-std=c++11')
 env.Repository(path.join("..", "include"))
 
 # multithread compilation - problems on windows
@@ -27,7 +36,7 @@ if platform != "win32":
     env.SetOption('num_jobs', num_cpu)
 
 # app's lib prep
-app_lib_src = env.Glob(path.join("src", "library_src", "*.cpp"))
+app_lib_src = list(find_files(path.join("src", "library_src"), "*.cpp"))
 env.StaticLibrary("appLib", app_lib_src)
 
 # main executing program prep
