@@ -34,37 +34,37 @@ namespace
 BOOST_AUTO_TEST_CASE(parser_parses_tuple_template_with_integer)
 {
     auto tuple_template = get_parsed_tuple_template_element("integer:*");
-    BOOST_CHECK(tuple_template->matches(50));
-    BOOST_CHECK(!tuple_template->matches(std::string("50")));
+    BOOST_TEST(tuple_template->matches(50));
+    BOOST_TEST(!tuple_template->matches(std::string("50")));
 }
 
 BOOST_AUTO_TEST_CASE(parser_parses_tuple_template_with_string)
 {
     auto tuple_template = get_parsed_tuple_template_element("string:*");
-    BOOST_CHECK(tuple_template->matches(std::string("lololo")));
-    BOOST_CHECK(!tuple_template->matches(50));
+    BOOST_TEST(tuple_template->matches(std::string("lololo")));
+    BOOST_TEST(!tuple_template->matches(50));
 }
 
 BOOST_AUTO_TEST_CASE(parser_parses_tuple_template_with_operator)
 {
     auto tuple_template = get_parsed_tuple_template_element("integer:>6");
-    BOOST_CHECK(tuple_template->matches(7));
-    BOOST_CHECK(!tuple_template->matches(6));
+    BOOST_TEST(tuple_template->matches(7));
+    BOOST_TEST(!tuple_template->matches(6));
 }
 
 BOOST_AUTO_TEST_CASE(parser_parses_tuple_string_template_with_operator)
 {
     auto tuple_template = get_parsed_tuple_template_element("string:<=\"abc\"");
-    BOOST_CHECK(!tuple_template->matches(std::string("abd")));
-    BOOST_CHECK(tuple_template->matches(std::string("abb")));
-    BOOST_CHECK(tuple_template->matches(std::string("abc")));
+    BOOST_TEST(!tuple_template->matches(std::string("abd")));
+    BOOST_TEST(tuple_template->matches(std::string("abb")));
+    BOOST_TEST(tuple_template->matches(std::string("abc")));
 }
 
 BOOST_AUTO_TEST_CASE(parser_parses_tuple_string_template_with_wildcard)
 {
     auto tuple_template = get_parsed_tuple_template_element("string:>\"abc*\"");
-    BOOST_CHECK(tuple_template->matches(std::string("abcasdasdasdasd")));
-    BOOST_CHECK(!tuple_template->matches(std::string("abbdfgdfgdfg")));
+    BOOST_TEST(tuple_template->matches(std::string("abcasdasdasdasd")));
+    BOOST_TEST(!tuple_template->matches(std::string("abbdfgdfgdfg")));
 }
 
 BOOST_AUTO_TEST_CASE(parser_parses_tuple_template)
@@ -73,8 +73,8 @@ BOOST_AUTO_TEST_CASE(parser_parses_tuple_template)
     // too lazy to create the tuple manually...
     auto tuple = get_parsed_tuple("(1, 2)");
     auto tuple_matches = get_parsed_tuple("(1)");
-    BOOST_CHECK(!tuple_template->matches(*tuple));
-    BOOST_CHECK(tuple_template->matches(*tuple_matches));
+    BOOST_TEST(!tuple_template->matches(*tuple));
+    BOOST_TEST(tuple_template->matches(*tuple_matches));
 }
 
 BOOST_AUTO_TEST_CASE(parser_parses_tuple_template_with_multiple_elements)
@@ -86,8 +86,8 @@ BOOST_AUTO_TEST_CASE(parser_parses_tuple_template_with_multiple_elements)
     auto tuple_one_element = get_parsed_tuple("(\"aaab\")");
     auto tuple_three_elements = get_parsed_tuple("(\"aaab\", 1, 2)");
 
-    BOOST_CHECK(tuple_template->matches(*tuple_matches));
-    BOOST_CHECK(!tuple_template->matches(*tuple_wrong_string));
-    BOOST_CHECK(!tuple_template->matches(*tuple_one_element));
-    BOOST_CHECK(!tuple_template->matches(*tuple_three_elements));
+    BOOST_TEST(tuple_template->matches(*tuple_matches));
+    BOOST_TEST(!tuple_template->matches(*tuple_wrong_string));
+    BOOST_TEST(!tuple_template->matches(*tuple_one_element));
+    BOOST_TEST(!tuple_template->matches(*tuple_three_elements));
 }

@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(pipe_works)
                                 std::string read = pipe.read();
                                 pipe.close();
                                 BOOST_LOG_TRIVIAL(debug) << "String read from pipe: " + read;
-                                BOOST_CHECK(read == "pipe_test");
+                                BOOST_TEST(read == "pipe_test");
                             });
     write_thread.join();
     read_thread.join();

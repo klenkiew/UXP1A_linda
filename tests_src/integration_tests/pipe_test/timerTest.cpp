@@ -24,5 +24,5 @@ BOOST_AUTO_TEST_CASE(timer_works)
     auto timer = SystemTimer("test_timer", SIGUSR1);
     timer.start(3);
     sleep(5);
-    BOOST_CHECK_EQUAL(flag, true);
+    BOOST_TEST(flag == true);
 }
