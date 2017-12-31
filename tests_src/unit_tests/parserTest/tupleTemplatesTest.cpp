@@ -6,26 +6,26 @@
 
 namespace
 {
-    std::unique_ptr<TupleTemplateElement> get_parsed_tuple_template_element(std::string input)
+    std::unique_ptr<TupleTemplateElement> get_parsed_tuple_template_element(const std::string &input)
     {
-        std::istringstream inputStream((input));
-        TupleTemplateElementParser parser(std::unique_ptr<Scanner>(new Scanner(inputStream)));
+        std::istringstream inputStream(input);
+        TupleTemplateElementParser parser(std::make_unique<Scanner>(inputStream));
         auto output = parser.parse_tuple_template_element();
         return output;
     }
 
-    std::unique_ptr<TupleTemplate> get_parsed_tuple_template(std::string input)
+    std::unique_ptr<TupleTemplate> get_parsed_tuple_template(const std::string &input)
     {
         std::istringstream inputStream((input));
-        TupleTemplateElementParser parser(std::unique_ptr<Scanner>(new Scanner(inputStream)));
+        TupleTemplateElementParser parser(std::make_unique<Scanner>(inputStream));
         auto output = parser.parse();
         return output;
     }
 
-    std::unique_ptr<Tuple> get_parsed_tuple(std::string input)
+    std::unique_ptr<Tuple> get_parsed_tuple(const std::string &input)
     {
         std::istringstream inputStream((input));
-        TupleParser parser(std::unique_ptr<Scanner>(new Scanner(inputStream)));
+        TupleParser parser(std::make_unique<Scanner>(inputStream));
         auto output = parser.parse();
         return output;
     }
@@ -73,8 +73,8 @@ BOOST_AUTO_TEST_CASE(parser_parses_tuple_template)
     // too lazy to create the tuple manually...
     auto tuple = get_parsed_tuple("(1, 2)");
     auto tuple_matches = get_parsed_tuple("(1)");
-    BOOST_CHECK(!tuple_template->matches(*tuple.get()));
-    BOOST_CHECK(tuple_template->matches(*tuple_matches.get()));
+    BOOST_CHECK(!tuple_template->matches(*tuple));
+    BOOST_CHECK(tuple_template->matches(*tuple_matches));
 }
 
 BOOST_AUTO_TEST_CASE(parser_parses_tuple_template_with_multiple_elements)
@@ -86,8 +86,8 @@ BOOST_AUTO_TEST_CASE(parser_parses_tuple_template_with_multiple_elements)
     auto tuple_one_element = get_parsed_tuple("(\"aaab\")");
     auto tuple_three_elements = get_parsed_tuple("(\"aaab\", 1, 2)");
 
-    BOOST_CHECK(tuple_template->matches(*tuple_matches.get()));
-    BOOST_CHECK(!tuple_template->matches(*tuple_wrong_string.get()));
-    BOOST_CHECK(!tuple_template->matches(*tuple_one_element.get()));
-    BOOST_CHECK(!tuple_template->matches(*tuple_three_elements.get()));
+    BOOST_CHECK(tuple_template->matches(*tuple_matches));
+    BOOST_CHECK(!tuple_template->matches(*tuple_wrong_string));
+    BOOST_CHECK(!tuple_template->matches(*tuple_one_element));
+    BOOST_CHECK(!tuple_template->matches(*tuple_three_elements));
 }

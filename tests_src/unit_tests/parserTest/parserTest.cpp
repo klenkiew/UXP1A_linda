@@ -6,10 +6,10 @@
 
 namespace
 {
-    std::unique_ptr<Tuple> get_parsed_tuple_element(std::string input)
+    std::unique_ptr<Tuple> get_parsed_tuple_element(const std::string &input)
     {
         std::istringstream inputStream((input));
-        TupleParser parser(std::unique_ptr<Scanner>(new Scanner(inputStream)));
+        TupleParser parser(std::make_unique<Scanner>(inputStream));
         auto output = parser.parse();
         return output;
     }

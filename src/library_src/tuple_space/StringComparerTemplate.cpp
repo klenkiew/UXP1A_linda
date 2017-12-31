@@ -3,7 +3,7 @@
 #include "tuple_space/StringComparerTemplate.h"
 
 StringComparerTemplate::StringComparerTemplate(Operator operator_, std::string to_compare) :
-        RequiredTypeTemplate(TupleElement::Type::String), ComparerTemplate(operator_, to_compare)
+        RequiredTypeTemplate(TupleElement::Type::String), ComparerTemplate(operator_, std::move(to_compare))
 {
 
 }
@@ -28,7 +28,7 @@ bool StringComparerTemplate::matches_wildcard(const std::string string)
 std::regex& StringComparerTemplate::getRegex()
 {
     if (cachedRegex == nullptr)
-        cachedRegex = std::unique_ptr<std::regex>(new std::regex(wildcard_to_regex(to_compare)));
+        cachedRegex = std::make_unique<std::regex>(wildcard_to_regex(to_compare));
 
     return *cachedRegex;
 }

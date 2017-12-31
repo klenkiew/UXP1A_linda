@@ -21,7 +21,7 @@ std::unique_ptr<TupleTemplate> TupleTemplateElementParser::parse()
         elements.push_back(parse_tuple_template_element());
     } while (try_skip_comma());
     skip(PunctuationMark::RightParenthesis);
-    return std::unique_ptr<TupleTemplate>(new TupleTemplate(std::move(elements)));
+    return std::make_unique<TupleTemplate>(std::move(elements));
 }
 
 std::unique_ptr<TupleTemplateElement> TupleTemplateElementParser::parse_tuple_template_element()
@@ -33,7 +33,7 @@ std::unique_ptr<TupleTemplateElement> TupleTemplateElementParser::parse_tuple_te
     if (is(PunctuationMark::Star))
     {
         skip(PunctuationMark::Star);
-        return std::unique_ptr<RequiredTypeTemplate>(new RequiredTypeTemplate(required_type));
+        return std::make_unique<RequiredTypeTemplate>(required_type);
     }
     if (is_operator())
         return parse_comparer_template(required_type);
@@ -113,7 +113,7 @@ std::unique_ptr<TupleTemplateElement> TupleTemplateElementParser::parse_integer_
 
     const int to_compare = scanner->get_token().get_integer();
     advance();
-    return std::unique_ptr<IntegerComparerTemplate>(new IntegerComparerTemplate(operator_, to_compare));
+    return std::make_unique<IntegerComparerTemplate>(operator_, to_compare);
 }
 
 std::unique_ptr<TupleTemplateElement> TupleTemplateElementParser::parse_string_comparer_template(
@@ -125,7 +125,7 @@ std::unique_ptr<TupleTemplateElement> TupleTemplateElementParser::parse_string_c
 
     const std::string to_compare = scanner->get_token().get_string_literal();
     advance();
-    return std::unique_ptr<StringComparerTemplate>(new StringComparerTemplate(operator_, to_compare));
+    return std::make_unique<StringComparerTemplate>(operator_, to_compare);
 }
 
 std::unique_ptr<TupleTemplateElement> TupleTemplateElementParser::parse_equal_template(TupleElement::Type type)

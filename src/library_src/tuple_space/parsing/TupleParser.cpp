@@ -12,7 +12,7 @@ std::unique_ptr<Tuple> TupleParser::parse()
         elements.push_back(parse_tuple_element());
     } while (try_skip_comma());
     skip(PunctuationMark::RightParenthesis);
-    return std::unique_ptr<Tuple>(new Tuple(std::move(elements)));
+    return std::make_unique<Tuple>(std::move(elements));
 }
 
 
@@ -51,9 +51,9 @@ std::unique_ptr<TupleElement> TupleParser::parse_tuple_element()
     const Token& token = scanner->get_token();
     advance();
     if (token.get_type() == Token::Type::Integer)
-        return std::unique_ptr<TupleElement>(new TupleElement(token.get_integer()));
+        return std::make_unique<TupleElement>(token.get_integer());
     else if (token.get_type() == Token::Type::StringLiteral)
-        return std::unique_ptr<TupleElement>(new TupleElement(token.get_string_literal()));
+        return std::make_unique<TupleElement>(token.get_string_literal());
 
     throw ParseException("Parse error: identifier or integer expected at line "
                          + std::to_string(scanner->get_current_line()));
