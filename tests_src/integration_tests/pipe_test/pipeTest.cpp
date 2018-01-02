@@ -10,6 +10,7 @@
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
+#include <chrono>
 
 namespace
 {
@@ -28,10 +29,12 @@ namespace
         NamedPipe& pipe;
     };
 
+    boost::random::mt19937 rng(
+            static_cast<const uint32_t &>(std::chrono::system_clock::now().time_since_epoch().count()));
+
     std::string get_random_pipe_path()
     {
         namespace fs = boost::filesystem;
-        boost::random::mt19937 rng;
         boost::random::uniform_int_distribution<> int_distribution(1, static_cast<int>(1e10));
         return (fs::temp_directory_path()
                 / fs::path("test_pipe_" + std::to_string(int_distribution(rng)))).string();
@@ -77,7 +80,7 @@ BOOST_AUTO_TEST_CASE(pipe_read_timeout_works)
                              {
                                  NamedPipe pipe(pipe_path);
                                  pipe.createIfNotExists();
-                                 BOOST_LOG_TRIVIAL(debug) << "pipe created";
+                                 BOOST_LOG_TRIVIAL(debug) << "pipe write created";
                                  pipe.open(NamedPipe::Mode::Write);
                                  BOOST_LOG_TRIVIAL(debug) << "pipe opened for write";
                                  sleep(3);
@@ -87,7 +90,7 @@ BOOST_AUTO_TEST_CASE(pipe_read_timeout_works)
                                 NamedPipe pipe(pipe_path);
                                 PipeDestroyer pipeDestroyer(pipe);
                                 pipe.createIfNotExists();
-                                BOOST_LOG_TRIVIAL(debug) << "pipe created";
+                                BOOST_LOG_TRIVIAL(debug) << "pipe read created";
                                 pipe.open(NamedPipe::Mode::Read);
                                 BOOST_LOG_TRIVIAL(debug) << "pipe opened for read";
                                 BOOST_CHECK_THROW(pipe.read(2), NamedPipeTimeoutException);
@@ -103,6 +106,6 @@ BOOST_AUTO_TEST_CASE(pipe_works_with_timeout)
     NamedPipe pipe(pipe_path);
     PipeDestroyer pipeDestroyer(pipe);
     pipe.createIfNotExists();
-    BOOST_LOG_TRIVIAL(debug) << "pipe created";
+    BOOST_LOG_TRIVIAL(debug) << "pipe timeout created";
     BOOST_CHECK_THROW(pipe.open(NamedPipe::Mode::Read, 2), NamedPipeTimeoutException);
 }

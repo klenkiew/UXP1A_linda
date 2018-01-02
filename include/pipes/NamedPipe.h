@@ -30,7 +30,7 @@ public:
     std::string read(int timeout_seconds);
 
 private:
-    static const int fifo_permissions = 777;
+    static const int fifo_permissions = 0777;
     static const int default_fifo_size = 512;
 
     const std::string fifo_path;

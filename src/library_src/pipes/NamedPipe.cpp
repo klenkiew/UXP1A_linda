@@ -21,11 +21,11 @@ NamedPipe::NamedPipe(const std::string &fifoPath) : fifo_path(fifoPath)
 void NamedPipe::create()
 {
     if (mkfifo(fifo_path.c_str(), fifo_permissions) < 0)
-        throw NamedPipeException("An error occurred during creating a pipe.");
+        throw NamedPipeException("An error occurred during creating a pipe. ERR: " + std::to_string(errno));
 }
 
 void NamedPipe::createIfNotExists()
-{   
+{
     if (!boost::filesystem::exists(fifo_path))
         create();
 }

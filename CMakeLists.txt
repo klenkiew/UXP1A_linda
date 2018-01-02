@@ -4,29 +4,30 @@ project(UXP1A_linda)
 include(CTest)
 enable_testing()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -DBOOST_LOG_DYN_LINK")
 set(LIB_NAME LindaLib)
 set(APP_NAME LindaApp)
 set(TESTS_NAME LindaTests)
 
-find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+find_package(Boost COMPONENTS unit_test_framework log system filesystem REQUIRED)
 
 file(GLOB APP_SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(GLOB_RECURSE LIB_SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/library_src/*.cpp)
-file(GLOB_RECURSE TESTS_SOURCE_FILES ${PROJECT_SOURCE_DIR}/tests_src/unit_tests/*.cpp
-        ${PROJECT_SOURCE_DIR}/tests_src/unit_tests/*/*.cpp)
+file(GLOB_RECURSE TESTS_SOURCE_FILES ${PROJECT_SOURCE_DIR}/tests_src/*.cpp)
 
 message(STATUS "APP_FILES " ${APP_SOURCE_FILES})
 message(STATUS "LIB_FILES " ${LIB_SOURCE_FILES})
 message(STATUS "TESTS_FILES " ${TESTS_SOURCE_FILES})
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
+set(LIBS ${Boost_LIBRARIES} pthread rt)
 
 add_library(${LIB_NAME} STATIC ${LIB_SOURCE_FILES})
+target_link_libraries(${LIB_NAME} ${LIBS})
 
 add_executable(${APP_NAME} ${APP_SOURCE_FILES})
-target_link_libraries(${APP_NAME} ${LIB_NAME})
+target_link_libraries(${APP_NAME} ${LIB_NAME} ${LIBS})
 
 add_executable(${TESTS_NAME} ${TESTS_SOURCE_FILES})
-target_link_libraries(${TESTS_NAME} ${LIB_NAME})
+target_link_libraries(${TESTS_NAME} ${LIB_NAME} ${LIBS})
 add_test(tests ${TESTS_NAME})
