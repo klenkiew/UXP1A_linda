@@ -26,8 +26,12 @@ void NamedPipe::create()
 
 void NamedPipe::createIfNotExists()
 {
-    if (!boost::filesystem::exists(fifo_path))
-        create();
+    if (boost::filesystem::exists(fifo_path))
+        return;
+
+    // 17 - EEXIST - we don't care
+    if (mkfifo(fifo_path.c_str(), fifo_permissions) < 0 && errno != 17)
+        throw NamedPipeException("An error occurred during creating a pipe. ERR: " + std::to_string(errno));
 }
 
 void NamedPipe::open(NamedPipe::Mode mode, bool blocking)
