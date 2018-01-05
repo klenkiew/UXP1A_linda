@@ -38,3 +38,16 @@ BOOST_AUTO_TEST_CASE(parser_throws_on_missing_comma_between_elements)
 {
     BOOST_CHECK_THROW(get_parsed_tuple_element("(10 \"abc\")"), ParseException);
 }
+
+BOOST_AUTO_TEST_CASE(parser_throws_on_empty_file_end_of_file)
+{
+    BOOST_CHECK_THROW(get_parsed_tuple_element(""), EndOfFile);
+}
+
+BOOST_AUTO_TEST_CASE(parser_throws_end_of_file_after_last_read_tuple)
+{
+    std::istringstream inputStream("(10 ,\"abc\")");
+    TupleParser parser(std::make_unique<Scanner>(inputStream));
+    parser.parse();
+    BOOST_CHECK_THROW(parser.parse(), EndOfFile);
+}

@@ -19,4 +19,18 @@ public:
 	}
 };
 
+class EndOfFile : public std::runtime_error
+{
+public:
+    explicit EndOfFile(const std::string& _Message)
+        : runtime_error(_Message)
+    {
+    }
+
+    explicit EndOfFile(const char* const _Message)
+        : runtime_error(_Message)
+    {
+    }
+};
+
 #endif //UXP1A_LINDA_PARSEREXCEPTION_H

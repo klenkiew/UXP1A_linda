@@ -69,11 +69,20 @@ bool TupleTemplateElementParser::is(PunctuationMark punctuation_mark) const
 
 void TupleTemplateElementParser::skip(PunctuationMark punctuation_mark) const
 {
+
     if (is(punctuation_mark))
         advance();
+    else if (is_eof())
+        throw EndOfFile("End of file at line: " + std::to_string(scanner->get_current_line()));
     else
         throw ParseException("Parse error: " + to_string(punctuation_mark) + " expected at line "
                              + std::to_string(scanner->get_current_line()));
+}
+
+bool TupleTemplateElementParser::is_eof() const
+{
+    const auto token = scanner->get_token();
+    return token.get_type() == Token::Type::Eof;
 }
 
 bool TupleTemplateElementParser::try_skip_comma() const

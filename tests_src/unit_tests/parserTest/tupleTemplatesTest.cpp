@@ -3,6 +3,7 @@
 #include <iostream>
 #include "tuple_space/parsing/TupleParser.h"
 #include "tuple_space/parsing/TupleTemplateElementParser.h"
+#include "tuple_space/parsing/exceptions/ParseException.h"
 
 namespace
 {
@@ -90,4 +91,24 @@ BOOST_AUTO_TEST_CASE(parser_parses_tuple_template_with_multiple_elements)
     BOOST_TEST(!tuple_template->matches(*tuple_wrong_string));
     BOOST_TEST(!tuple_template->matches(*tuple_one_element));
     BOOST_TEST(!tuple_template->matches(*tuple_three_elements));
+}
+
+BOOST_AUTO_TEST_CASE(end_of_file_if_nothing_to_parse)
+{
+    std::string input = "(integer:*, string:\"lol\")\n"
+                        "\n"
+                        "\n"
+                        "(integer:*, string:\"lol\")\n"
+                        "\n";
+    std::istringstream inputStream(input);
+    TupleTemplateElementParser parser(std::make_unique<Scanner>(inputStream));
+
+    // get 2 templates
+    for (int i = 0; i < 2; ++i)
+    {
+        parser.parse();
+    }
+
+    // expect end of file
+    BOOST_CHECK_THROW(parser.parse(), EndOfFile);
 }

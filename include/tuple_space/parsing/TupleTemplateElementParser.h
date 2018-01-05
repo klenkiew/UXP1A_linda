@@ -21,6 +21,7 @@ private:
 
     void advance() const;
     bool is(PunctuationMark punctuation_mark) const;
+    bool is_eof() const;
     void skip(PunctuationMark punctuation_mark) const;
     bool try_skip_comma() const;
     TupleElement::Type read_type() const;
