@@ -13,6 +13,6 @@ enum class Operator
     GreaterEqual,
 };
 
-std::string toString(Operator operator_);
+std::string to_string(Operator operator_);
 
 #endif
