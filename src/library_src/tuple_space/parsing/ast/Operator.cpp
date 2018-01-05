@@ -23,7 +23,7 @@ namespace
     };
 }
 
-std::string toString(Operator operator_)
+std::string to_string(Operator operator_)
 {
     return (operatorStrings.find(operator_)->second);
 }
