@@ -19,6 +19,7 @@ public:
 private:
 
     timer_t timer_id;
+    std::string timer_name;
 
     void init_timer(const std::string &name, int signal_number);
 };
