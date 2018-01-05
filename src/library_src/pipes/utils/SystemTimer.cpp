@@ -31,10 +31,11 @@ void SystemTimer::stop()
 
 void SystemTimer::init_timer(const std::string &name, int signal_number)
 {
+    timer_name = name;
     struct sigevent te;
     te.sigev_notify = SIGEV_SIGNAL;
     te.sigev_signo = signal_number;
-    te.sigev_value.sival_ptr = (void *) name.c_str();
+    te.sigev_value.sival_ptr = (void *) timer_name.c_str();
 
     timer_t timer_id;
 
