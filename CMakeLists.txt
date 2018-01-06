@@ -27,7 +27,7 @@ message(STATUS "INTEGRATION_TESTS_FILES " ${INTEGRATION_TESTS_SOURCE_FILES})
 include_directories(${PROJECT_SOURCE_DIR}/include)
 set(LIBS ${Boost_LIBRARIES} pthread rt)
 
-add_library(${LIB_NAME} STATIC ${LIB_SOURCE_FILES})
+add_library(${LIB_NAME} STATIC ${LIB_SOURCE_FILES} include/linda_api/ExclusiveFileAccessor.h)
 target_link_libraries(${LIB_NAME} ${LIBS})
 
 add_executable(${APP_NAME} ${APP_SOURCE_FILES})
