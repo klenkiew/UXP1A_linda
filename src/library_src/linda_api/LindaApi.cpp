@@ -76,7 +76,7 @@ TupleSpace::get_template_with_fifo_pairs(const ExclusiveFileAccessor &file)
     while (file_content)
     {
         file_content >> fifo_name;
-        file_content >> template_as_string;
+        std::getline(file_content, template_as_string);
         if (fifo_name.empty() || template_as_string.empty())
             continue;
         tuples_with_fifos.emplace_back(get_parsed_tuple_template(template_as_string), fifo_name);
