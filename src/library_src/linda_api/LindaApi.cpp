@@ -46,14 +46,24 @@ bool TupleSpace::linda_output(std::string tuple)
 
         for (auto &&template_with_fifo : templates) {
             if (template_with_fifo.first->matches(*parsed_tuple)) {
-                return send_tuple(tuple, template_with_fifo.second);
+                // get first character of FIFO name. It indicates if it is read or input
+                char read_type = template_with_fifo.second.at(0);
+                if (read_type == 'I') {
+                    // input - discard this tuple
+                    return send_tuple(tuple, template_with_fifo.second);
+                }
+                if (read_type == 'R') {
+                    // read - keep this tuple
+                    send_tuple(tuple, template_with_fifo.second);
+                    continue;
+                }
             }
         }
     }
     // nobody waits for this kind of tuple, write it into tuples_file
     { // tuples_file exclusive scope
         ExclusiveFileAccessor tuples_file(tuples_path);
-        tuples_file.append(tuple + "\n");
+        tuples_file.append(tuple + "\n\n");
     }
 }
 
@@ -103,8 +113,11 @@ bool TupleSpace::send_tuple(const std::string &tuple, const std::string &fifo)
     try {
         NamedPipe pipe(fifo);
         pipe.open(NamedPipe::Mode::Write, false); // open in nonblocking mode
-        pipe.write(tuple);
+        pipe.write(tuple, 1);
         pipe.close();
+    } catch (NamedPipeTimeoutException &e) {
+        BOOST_LOG_TRIVIAL(debug) << "TIMEOUT DURING WRITE INTO PIPE!!! " << e.what();
+        return false;
     } catch (NamedPipeException &e) {
         BOOST_LOG_TRIVIAL(debug) << e.what();
         return false;

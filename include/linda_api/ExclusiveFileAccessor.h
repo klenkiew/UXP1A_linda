@@ -26,17 +26,14 @@ public:
         if (fd == -1)
             throw std::runtime_error("File open error");
 
-        BOOST_LOG_TRIVIAL(debug) << std::this_thread::get_id() << " pid try to lock " << filename;
         if (flock(fd, LOCK_EX) == -1) {
             throw std::runtime_error("File lock corruption! Errno: " + std::to_string(errno));
         }
-        BOOST_LOG_TRIVIAL(debug) << std::this_thread::get_id() << " locked successfully " << filename;
     }
 
     ~ExclusiveFileAccessor()
     {
         flock(fd, LOCK_UN);
-        BOOST_LOG_TRIVIAL(debug) << std::to_string(getpid()) << " unlocked successfully " << filename;
         close(fd);
     }
 
@@ -57,7 +54,7 @@ public:
         while ( (char_read = read(fd, buffer, BUFFER_SIZE)) > 0)
         {
             file_content.append(buffer, char_read);
-            BOOST_LOG_TRIVIAL(debug) << "READ: " << buffer;
+            //BOOST_LOG_TRIVIAL(debug) << "READ FROM FILE:\n" << buffer;
 
         }
 
