@@ -65,38 +65,6 @@ std::unique_ptr<Tuple> TupleSpace::get_parsed_tuple(const std::string &input)
     return output;
 }
 
-bool TupleSpace::send_tuple(const std::string &tuple, const std::string &fifo)
-{
-    try {
-        NamedPipe pipe(fifo);
-        pipe.open(NamedPipe::Mode::Write, false); // open in nonblocking mode
-        pipe.write(tuple);
-    } catch (NamedPipeException &e) {
-        BOOST_LOG_TRIVIAL(debug) << e.what();
-        return false;
-    }
-    return true;
-}
-
-std::string TupleSpace::linda_input(std::string pattern, int timeout)
-{
-
-}
-
-std::string TupleSpace::linda_read(std::string pattern, int timeout)
-{
-
-}
-
-std::string TupleSpace::get_home_dir_path()
-{
-    const char *homedir;
-    if ((homedir = getenv("HOME")) == NULL) {
-        homedir = getpwuid(getuid())->pw_dir;
-    }
-    return std::string(homedir);
-}
-
 std::vector<std::pair<std::unique_ptr<TupleTemplate>, std::string>>
 TupleSpace::get_template_with_fifo_pairs(const ExclusiveFileAccessor &file)
 {
@@ -122,4 +90,54 @@ std::unique_ptr<TupleTemplate> TupleSpace::get_parsed_tuple_template(const std::
     TupleTemplateElementParser parser(std::make_unique<Scanner>(inputStream));
     auto output = parser.parse();
     return output;
+}
+
+bool TupleSpace::send_tuple(const std::string &tuple, const std::string &fifo)
+{
+    try {
+        NamedPipe pipe(fifo);
+        pipe.open(NamedPipe::Mode::Write, false); // open in nonblocking mode
+        pipe.write(tuple);
+    } catch (NamedPipeException &e) {
+        BOOST_LOG_TRIVIAL(debug) << e.what();
+        return false;
+    }
+    return true;
+}
+
+std::string TupleSpace::linda_input(std::string pattern, int timeout)
+{
+
+}
+
+std::string TupleSpace::linda_read(std::string pattern, int timeout)
+{
+
+}
+
+std::vector<std::unique_ptr<Tuple>> TupleSpace::get_tuples(const ExclusiveFileAccessor &tuples_file)
+{
+    std::stringstream file_content(file.read_whole_file());
+    std::string fifo_name;
+    std::string template_as_string;
+    std::vector<std::pair<std::unique_ptr<TupleTemplate>, std::string>> tuples_with_fifos;
+
+    while (file_content)
+    {
+        file_content >> fifo_name;
+        std::getline(file_content, template_as_string);
+        if (fifo_name.empty() || template_as_string.empty())
+            continue;
+        tuples_with_fifos.emplace_back(get_parsed_tuple_template(template_as_string), fifo_name);
+    }
+    return tuples_with_fifos;
+}
+
+std::string TupleSpace::get_home_dir_path()
+{
+    const char *homedir;
+    if ((homedir = getenv("HOME")) == NULL) {
+        homedir = getpwuid(getuid())->pw_dir;
+    }
+    return std::string(homedir);
 }
