@@ -81,12 +81,14 @@ TupleSpace::get_template_with_fifo_pairs(const ExclusiveFileAccessor &file)
     std::stringstream file_content(file.read_whole_file());
     std::string fifo_name;
     std::string template_as_string;
+    std::string line;
     std::vector<std::pair<std::unique_ptr<TupleTemplate>, std::string>> tuples_with_fifos;
 
-    while (file_content)
+    while (std::getline(file_content, line))
     {
-        file_content >> fifo_name;
-        std::getline(file_content, template_as_string);
+        const auto first_space_index = line.find(" ");
+        fifo_name = line.substr(0, first_space_index);
+        template_as_string = line.substr(first_space_index + 1);
         if (fifo_name.empty() || template_as_string.empty())
             continue;
 
