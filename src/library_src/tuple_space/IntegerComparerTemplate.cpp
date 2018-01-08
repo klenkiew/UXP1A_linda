@@ -12,3 +12,9 @@ bool IntegerComparerTemplate::matches(const TupleElement& tuple_element)
 
     return ComparerTemplate::matches(tuple_element.get_int());
 }
+
+std::string IntegerComparerTemplate::to_string() const
+{
+    return ::to_string(RequiredTypeTemplate::required_type) + ":" +
+           to_string_skip_equal(operator_) + std::to_string(to_compare);
+}

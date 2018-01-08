@@ -12,7 +12,7 @@ namespace
         }
     };
 
-    const std::unordered_map<Operator, std::string, EnumClassHash> operatorStrings
+    const std::unordered_map<Operator, std::string, EnumClassHash> operator_strings
     {
         {Operator::Equal,        "=="},
         {Operator::NotEqual,     "!="},
@@ -25,5 +25,12 @@ namespace
 
 std::string to_string(Operator operator_)
 {
-    return (operatorStrings.find(operator_)->second);
+    return (operator_strings.find(operator_)->second);
+}
+
+std::string to_string_skip_equal(Operator operator_)
+{
+    // equal operator has two representations - "==" and an empty string (e.g integer:==5 or integer:5)
+    // we choose the latter representation to print tuple templates so we skip the operator if it's '=='
+    return operator_ == Operator::Equal ? "" : ::to_string(operator_);
 }

@@ -7,3 +7,8 @@ bool RequiredTypeTemplate::matches(const TupleElement &tuple_element)
 
 RequiredTypeTemplate::RequiredTypeTemplate(TupleElement::Type required_type) : required_type(required_type)
 { }
+
+std::string RequiredTypeTemplate::to_string() const
+{
+    return ::to_string(required_type) + ":*";
+}

@@ -1,15 +1,11 @@
 #include "tuple_space/Tuple.h"
+#include <sstream>
 
 Tuple::Tuple()
 { }
 
 Tuple::Tuple(std::vector<std::unique_ptr<TupleElement>> elements) : elements(std::move(elements))
 { }
-
-void Tuple::add_element(std::unique_ptr<TupleElement> element)
-{
-    elements.push_back(std::move(element));
-}
 
 unsigned long Tuple::size() const
 {
@@ -18,5 +14,15 @@ unsigned long Tuple::size() const
 
 const TupleElement &Tuple::get(int index) const
 {
-    return *elements[index].get();
+    return *elements[index];
+}
+
+std::string Tuple::to_string() const
+{
+    std::ostringstream result;
+    result << "(";
+    for (int i = 0; i < elements.size(); ++i)
+        result << (i ? ", " : "") << elements[i]->to_string();
+    result << ")";
+    return result.str();
 }

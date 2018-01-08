@@ -8,9 +8,11 @@ class RequiredTypeTemplate: public TupleTemplateElement
 {
 public:
     RequiredTypeTemplate(TupleElement::Type required_type);
-    virtual bool matches(const TupleElement &tuple_element);
 
-private:
+    virtual bool matches(const TupleElement &tuple_element);
+    std::string to_string() const override;
+
+protected:
     TupleElement::Type required_type;
 };
 

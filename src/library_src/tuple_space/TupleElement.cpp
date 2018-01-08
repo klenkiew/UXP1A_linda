@@ -15,3 +15,12 @@ TupleElement::Type TupleElement::get_type() const
     return type;
 }
 
+std::string TupleElement::to_string() const
+{
+    return type == TupleElement::Type::String ? get_string() : std::to_string(get_int());
+}
+
+std::string to_string(TupleElement::Type type)
+{
+    return type == TupleElement::Type::String ? "string" : "integer";
+}

@@ -12,6 +12,7 @@ public:
     { }
 
     bool matches(const Tuple& tuple) const;
+    std::string to_string() const;
 
 private:
     std::vector<std::unique_ptr<TupleTemplateElement>> elements;
