@@ -21,6 +21,31 @@ BOOST_AUTO_TEST_CASE(parser_parses_tuple_with_integer)
     BOOST_TEST(tuple->get(0).get_int() == 50);
 }
 
+BOOST_AUTO_TEST_CASE(parser_parses_tuple_with_negative_integer)
+{
+    auto tuple = get_parsed_tuple_element("(-50)");
+    BOOST_TEST(tuple->get(0).get_int() == -50);
+}
+
+BOOST_AUTO_TEST_CASE(parser_parses_tuple_with_negative_integer_with_spaces)
+{
+    auto tuple = get_parsed_tuple_element("(-   50)");
+    BOOST_TEST(tuple->get(0).get_int() == -50);
+}
+
+BOOST_AUTO_TEST_CASE(parser_parses_tuple_with_doubly_negative_integer)
+{
+    // because why not?
+    auto tuple = get_parsed_tuple_element("(--50)");
+    BOOST_TEST(tuple->get(0).get_int() == 50);
+}
+
+BOOST_AUTO_TEST_CASE(parser_parses_tuple_with_triply_negative_integer)
+{
+    auto tuple = get_parsed_tuple_element("(---50)");
+    BOOST_TEST(tuple->get(0).get_int() == -50);
+}
+
 BOOST_AUTO_TEST_CASE(parser_parses_tuple_with_string)
 {
     auto tuple = get_parsed_tuple_element("(\"lol\")");
@@ -31,6 +56,13 @@ BOOST_AUTO_TEST_CASE(parser_parses_tuple_with_integer_and_string)
 {
     auto tuple = get_parsed_tuple_element("(10, \"abc\")");
     BOOST_TEST(tuple->get(0).get_int() == 10);
+    BOOST_TEST(tuple->get(1).get_string() == "abc");
+}
+
+BOOST_AUTO_TEST_CASE(parser_parses_tuple_with_negative_integer_and_string)
+{
+    auto tuple = get_parsed_tuple_element("(- - ---10, \"abc\")");
+    BOOST_TEST(tuple->get(0).get_int() == -10);
     BOOST_TEST(tuple->get(1).get_string() == "abc");
 }
 

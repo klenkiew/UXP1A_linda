@@ -20,6 +20,7 @@ namespace
         {Operator::LessEqual,    "<="},
         {Operator::Greater,      ">"},
         {Operator::GreaterEqual, ">="},
+        {Operator::Minus,        "-"},
     };
 }
 

@@ -1,15 +1,14 @@
 #define BOOST_TEST_NO_LIB
 #include <boost/test/unit_test.hpp>
 
-#include <string>
 #include <tuple_space/TupleElement.h>
 #include <tuple_space/Tuple.h>
 #include <tuple_space/RequiredTypeTemplate.h>
 #include <tuple_space/IntegerComparerTemplate.h>
 #include <tuple_space/StringComparerTemplate.h>
 #include <tuple_space/TupleTemplate.h>
-#include "tuple_space/parsing/ast/Operator.h"
 #include "tuple_space/parsing/ast/PunctuationMark.h"
+
 
 BOOST_AUTO_TEST_CASE(punctuation_mark_to_string)
 {
@@ -59,6 +58,15 @@ BOOST_AUTO_TEST_CASE(tuple_with_one_element_to_string)
     Tuple tuple(std::move(elements));
 
     BOOST_TEST(tuple.to_string() == "(123)");
+}
+
+BOOST_AUTO_TEST_CASE(tuple_with_negative_integer_to_string)
+{
+    std::vector<std::unique_ptr<TupleElement>> elements;
+    elements.emplace_back(new TupleElement(-123));
+    Tuple tuple(std::move(elements));
+
+    BOOST_TEST(tuple.to_string() == "(-123)");
 }
 
 BOOST_AUTO_TEST_CASE(tuple_with_two_elements_to_string)

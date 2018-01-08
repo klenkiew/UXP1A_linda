@@ -25,6 +25,7 @@ private:
     bool try_skip_comma() const;
 
     std::unique_ptr<TupleElement> parse_tuple_element();
+    int parse_integer() const;
 };
 
 

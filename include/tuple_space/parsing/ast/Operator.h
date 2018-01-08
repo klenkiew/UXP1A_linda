@@ -11,6 +11,7 @@ enum class Operator
     LessEqual,
     Greater,
     GreaterEqual,
+    Minus,
 };
 
 std::string to_string(Operator operator_);
