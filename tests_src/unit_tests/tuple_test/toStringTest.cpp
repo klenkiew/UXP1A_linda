@@ -10,6 +10,26 @@
 #include "tuple_space/parsing/ast/PunctuationMark.h"
 
 
+namespace
+{
+    Tuple create_tuple(std::initializer_list<TupleElement*> args)
+    {
+        std::vector<std::unique_ptr<TupleElement>> elements;
+        for (auto&& arg : args)
+            elements.emplace_back(arg);
+        return Tuple(std::move(elements));
+    }
+
+    TupleTemplate create_tuple_template(std::initializer_list<TupleTemplateElement*> args)
+    {
+        std::vector<std::unique_ptr<TupleTemplateElement>> elements;
+        for (auto&& arg : args)
+            elements.emplace_back(arg);
+        return TupleTemplate(std::move(elements));
+    }
+}
+
+
 BOOST_AUTO_TEST_CASE(punctuation_mark_to_string)
 {
     auto leftParenthesis = PunctuationMark::LeftParenthesis;
@@ -53,28 +73,21 @@ BOOST_AUTO_TEST_CASE(tuple_element_to_string)
 
 BOOST_AUTO_TEST_CASE(tuple_with_one_element_to_string)
 {
-    std::vector<std::unique_ptr<TupleElement>> elements;
-    elements.emplace_back(new TupleElement(123));
-    Tuple tuple(std::move(elements));
+    Tuple tuple = create_tuple({new TupleElement(123)});
 
     BOOST_TEST(tuple.to_string() == "(123)");
 }
 
 BOOST_AUTO_TEST_CASE(tuple_with_negative_integer_to_string)
 {
-    std::vector<std::unique_ptr<TupleElement>> elements;
-    elements.emplace_back(new TupleElement(-123));
-    Tuple tuple(std::move(elements));
+    Tuple tuple = create_tuple({new TupleElement(-123)});
 
     BOOST_TEST(tuple.to_string() == "(-123)");
 }
 
 BOOST_AUTO_TEST_CASE(tuple_with_two_elements_to_string)
 {
-    std::vector<std::unique_ptr<TupleElement>> elements;
-    elements.emplace_back(new TupleElement(123));
-    elements.emplace_back(new TupleElement("abc789"));
-    Tuple tuple(std::move(elements));
+    Tuple tuple = create_tuple({new TupleElement(123), new TupleElement("abc789")});
 
     BOOST_TEST(tuple.to_string() == "(123, abc789)");
 }
@@ -112,11 +125,7 @@ BOOST_AUTO_TEST_CASE(string_comparer_template_element_to_string)
 
 BOOST_AUTO_TEST_CASE(tuple_template_one_element_to_string)
 {
-    std::vector<std::unique_ptr<TupleTemplateElement>> templates_elements;
-
-    templates_elements.emplace_back(new StringComparerTemplate(Operator::Equal, "xy*"));
-
-    TupleTemplate tuple_template(std::move(templates_elements));
+    TupleTemplate tuple_template = create_tuple_template({new StringComparerTemplate(Operator::Equal, "xy*")});
 
     BOOST_TEST(tuple_template.to_string() == "(string:\"xy*\")");
 }
@@ -126,11 +135,12 @@ BOOST_AUTO_TEST_CASE(tuple_template_three_elements_to_string)
     StringComparerTemplate equal(Operator::Equal, "xy*");
     std::vector<std::unique_ptr<TupleTemplateElement>> templates_elements;
 
-    templates_elements.emplace_back(new StringComparerTemplate(Operator::Equal, "xy*"));
-    templates_elements.emplace_back(new IntegerComparerTemplate(Operator::GreaterEqual, 5));
-    templates_elements.emplace_back(new StringComparerTemplate(Operator::NotEqual, "10"));
-
-    TupleTemplate tuple_template(std::move(templates_elements));
+    TupleTemplate tuple_template = create_tuple_template(
+            {
+                    new StringComparerTemplate(Operator::Equal, "xy*"),
+                    new IntegerComparerTemplate(Operator::GreaterEqual, 5),
+                    new StringComparerTemplate(Operator::NotEqual, "10")
+            });
 
     BOOST_TEST(tuple_template.to_string() == "(string:\"xy*\", integer:>=5, string:!=\"10\")");
 }
