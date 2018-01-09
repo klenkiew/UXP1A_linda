@@ -70,6 +70,7 @@ public:
     void rewrite_whole_file(const std::string &new_file_content) const
     {
         ftruncate(fd, 0);
+        lseek(fd, 0, SEEK_SET);
         write(fd, new_file_content.c_str(), new_file_content.size());
     }
 
