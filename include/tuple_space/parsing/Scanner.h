@@ -30,6 +30,7 @@ private:
     bool try_integer();
     bool try_eof();
     bool try_string_literal();
+    bool try_simple_operator();
     bool try_complex_operator(const char first);
 
     std::string read_identifier(const char first) const;

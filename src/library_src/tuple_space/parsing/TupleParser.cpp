@@ -57,13 +57,36 @@ bool TupleParser::try_skip_comma() const
 std::unique_ptr<TupleElement> TupleParser::parse_tuple_element()
 {
     const Token& token = scanner->get_token();
-    advance();
-    if (token.get_type() == Token::Type::Integer)
-        return std::make_unique<TupleElement>(token.get_integer());
-    else if (token.get_type() == Token::Type::StringLiteral)
-        return std::make_unique<TupleElement>(token.get_string_literal());
+    std::unique_ptr<TupleElement> tuple_element;
 
-    throw ParseException("Parse error: identifier or integer expected at line "
+    if (token.get_type() == Token::Type::Integer 
+        || token.get_type() == Token::Type::Operator && token.get_operator() == Operator::Minus)
+    {
+        tuple_element = std::make_unique<TupleElement>(parse_integer());
+    }
+    else if (token.get_type() == Token::Type::StringLiteral)
+        tuple_element = std::make_unique<TupleElement>(token.get_string_literal());
+    else
+        throw ParseException("Parse error: identifier or integer expected at line "
+                             + std::to_string(scanner->get_current_line()));
+    advance();
+    return tuple_element;
+}
+
+int TupleParser::parse_integer() const
+{
+    const Token &token = scanner->get_token();
+    if (token.get_type() == Token::Type::Integer)
+        return token.get_integer();
+
+    if (token.get_type() == Token::Type::Operator && token.get_operator() == Operator::Minus)
+    {
+        advance();
+        return -parse_integer();
+    }
+
+    // happens only if there's a '-' character without any digits after
+    throw ParseException("Parse error: a digit expected after '-' at line "
                          + std::to_string(scanner->get_current_line()));
 }
 

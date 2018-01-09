@@ -6,9 +6,9 @@
 void Scanner::read_next()
 {
     skip_whitespaces();
-    if (try_eof() || try_punctuation_mark() || try_integer() || try_string_literal())
+    if (try_eof() || try_punctuation_mark() || try_integer() || try_string_literal() || try_simple_operator())
         return;
-    const char first = static_cast<const char>(input.get());
+    const auto first = static_cast<const char>(input.get());
     if (try_complex_operator(first))
         return;
     const std::string& identifier = read_identifier(first);
@@ -32,7 +32,7 @@ bool Scanner::try_integer()
 {
     std::string buffer;
     while (input && std::isdigit(input.peek()))
-        buffer += input.get();
+        buffer += static_cast<const char>(input.get());
     if (buffer.empty())
         return false;
     current_token = std::stoi(buffer);
@@ -44,7 +44,7 @@ std::string Scanner::read_identifier(const char first) const
     std::string buffer;
     buffer += first;
     while (input && (isalnum(input.peek())))
-        buffer += input.get();
+        buffer += static_cast<const char>(input.get());
     return buffer;
 }
 
@@ -60,13 +60,13 @@ bool Scanner::try_eof()
 
 bool Scanner::try_string_literal()
 {
-    char first = static_cast<char>(input.peek());
+    const auto first = static_cast<char>(input.peek());
     if (first != '"')
         return false;
     input.get();
     std::string buffer;
     while (input && input.peek() != '"')
-        buffer += input.get();
+        buffer += static_cast<const char>(input.get());
     if (input.peek() == '"')
         input.get();
     else
@@ -93,6 +93,18 @@ bool Scanner::try_punctuation_mark()
         input.get();
         return true;
     }
+    return false;
+}
+
+bool Scanner::try_simple_operator()
+{
+    if (input.peek() == '-')
+    {
+        input.get();
+        current_token = Operator::Minus;
+        return true;
+    }
+
     return false;
 }
 

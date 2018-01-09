@@ -8,6 +8,7 @@ class TupleTemplateElement
 {
 public:
     virtual bool matches(const TupleElement &tupleElement) = 0;
+    virtual std::string to_string() const = 0;
 };
 
 

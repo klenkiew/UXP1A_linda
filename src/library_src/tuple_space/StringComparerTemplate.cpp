@@ -19,7 +19,7 @@ bool StringComparerTemplate::matches(const TupleElement &tuple_element)
     return matches_wildcard(tuple_element.get_string());
 }
 
-bool StringComparerTemplate::matches_wildcard(const std::string string)
+bool StringComparerTemplate::matches_wildcard(std::string string)
 {
     const std::regex& regex = getRegex();
     return std::regex_match(string, regex);
@@ -47,6 +47,12 @@ std::string StringComparerTemplate::escape_regex(const std::string &string)
 
     const std::string sanitized = std::regex_replace(string, specialChars, R"(\$&)" );
     return sanitized;
+}
+
+std::string StringComparerTemplate::to_string() const
+{
+    return ::to_string(RequiredTypeTemplate::required_type) + ":" +
+            to_string_skip_equal(operator_) + "\"" + to_compare + "\"";
 }
 
 

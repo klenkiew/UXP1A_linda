@@ -11,8 +11,10 @@ enum class Operator
     LessEqual,
     Greater,
     GreaterEqual,
+    Minus,
 };
 
 std::string to_string(Operator operator_);
+std::string to_string_skip_equal(Operator operator_);
 
 #endif

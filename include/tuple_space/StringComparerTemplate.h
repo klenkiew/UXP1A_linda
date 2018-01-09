@@ -10,12 +10,14 @@ class StringComparerTemplate: public RequiredTypeTemplate, public ComparerTempla
 {
 public:
     StringComparerTemplate(Operator operator_, std::string to_compare);
+
     virtual bool matches(const TupleElement& tuple_element);
+    std::string to_string() const override;
 
 private:
     std::unique_ptr<std::regex> cachedRegex = nullptr;
 
-    bool matches_wildcard(const std::string string);
+    bool matches_wildcard(std::string string);
     std::string wildcard_to_regex(const std::string &wildcard_string);
     std::string escape_regex(const std::string &string);
 
