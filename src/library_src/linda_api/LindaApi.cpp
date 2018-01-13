@@ -27,18 +27,9 @@ void TupleSpace::reset()
 
 }
 
-bool TupleSpace::linda_output(std::string tuple)
+void TupleSpace::linda_output(std::string tuple)
 {
-    std::unique_ptr<Tuple> parsed_tuple;
-    try {
-        parsed_tuple = get_parsed_tuple(tuple);
-    } catch (ParseException &e) {
-        BOOST_LOG_TRIVIAL(debug) << e.what();
-        return false;
-    } catch (EndOfFile &e) {
-        BOOST_LOG_TRIVIAL(debug) << "empty tuple passed into linda_output";
-        return false;
-    }
+    std::unique_ptr<Tuple> parsed_tuple = get_parsed_tuple(tuple);
 
     { // templates_file exclusive scope
         ExclusiveFileAccessor templates_file(templates_path);
@@ -50,7 +41,8 @@ bool TupleSpace::linda_output(std::string tuple)
                 char read_type = template_with_fifo.second.at(0);
                 if (read_type == 'I') {
                     // input - discard this tuple
-                    return send_tuple(tuple, template_with_fifo.second);
+                    send_tuple(tuple, template_with_fifo.second);
+                    return;
                 }
                 if (read_type == 'R') {
                     // read - keep this tuple
@@ -110,21 +102,11 @@ std::unique_ptr<TupleTemplate> TupleSpace::get_parsed_tuple_template(const std::
     return output;
 }
 
-bool TupleSpace::send_tuple(const std::string &tuple, const std::string &fifo)
+void TupleSpace::send_tuple(const std::string &tuple, const std::string &fifo)
 {
-    try {
-        NamedPipe pipe(fifo);
-        pipe.open(NamedPipe::Mode::Write, false); // open in nonblocking mode
-        pipe.write(tuple, 1);
-        pipe.close();
-    } catch (NamedPipeTimeoutException &e) {
-        BOOST_LOG_TRIVIAL(debug) << "TIMEOUT DURING WRITE INTO PIPE!!! " << e.what();
-        return false;
-    } catch (NamedPipeException &e) {
-        BOOST_LOG_TRIVIAL(debug) << e.what();
-        return false;
-    }
-    return true;
+    NamedPipe pipe(fifo);
+    pipe.open(NamedPipe::Mode::Write, false); // open in nonblocking mode
+    pipe.write(tuple);
 }
 
 std::string TupleSpace::linda_input(std::string pattern, int timeout)
@@ -139,13 +121,7 @@ std::string TupleSpace::linda_read(std::string pattern, int timeout)
 
 std::string TupleSpace::tuple_read_util(const std::string &pattern, int timeout, bool is_input)
 {
-    std::unique_ptr<TupleTemplate> parsed_template;
-    try {
-        parsed_template = get_parsed_tuple_template(pattern);
-    } catch (ParseException &e) {
-        BOOST_LOG_TRIVIAL(debug) << e.what();
-        return std::string();
-    }
+    std::unique_ptr<TupleTemplate> parsed_template = get_parsed_tuple_template(pattern);
 
     { // tuples_file exclusive scope
         ExclusiveFileAccessor tuples_file(tuples_path);
@@ -184,18 +160,18 @@ std::string TupleSpace::tuple_read_util(const std::string &pattern, int timeout,
         templates_file.erase(template_entry);
         pipe.close();
         pipe.destroy();
-        return read_tuple;
+        throw;
     }
 
     // read from pipe
     try {
         read_tuple = pipe.read(timeout);
-    } catch (NamedPipeTimeoutException &e) {
+    } catch (const NamedPipeTimeoutException &e) {
         ExclusiveFileAccessor templates_file(templates_path);
         templates_file.erase(template_entry);
         pipe.close();
         pipe.destroy();
-        return read_tuple;
+        throw;
     }
 
 
