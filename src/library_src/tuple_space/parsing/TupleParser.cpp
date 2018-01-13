@@ -5,6 +5,7 @@
 std::unique_ptr<Tuple> TupleParser::parse()
 {
     advance();
+    throwOnEof();
     skip(PunctuationMark::LeftParenthesis);
     std::vector<std::unique_ptr<TupleElement>> elements;
     do
@@ -15,11 +16,11 @@ std::unique_ptr<Tuple> TupleParser::parse()
     return std::make_unique<Tuple>(std::move(elements));
 }
 
-
 void TupleParser::advance() const
 {
     scanner->read_next();
 }
+
 
 bool TupleParser::is(PunctuationMark punctuation_mark) const
 {
@@ -31,16 +32,20 @@ void TupleParser::skip(PunctuationMark punctuation_mark) const
 {
     if (is(punctuation_mark))
         advance();
-    else if (is_eof())
-        throw EndOfFile("End of file at line: " + std::to_string(scanner->get_current_line()));
     else
         throw ParseException("Parse error: " + to_string(punctuation_mark) + " expected at line "
                              + std::to_string(scanner->get_current_line()));
 }
 
+void TupleParser::throwOnEof() const
+{
+    if (is_eof())
+        throw EndOfFile("End of file at line: " + std::to_string(scanner->get_current_line()));
+}
+
 bool TupleParser::is_eof() const
 {
-    const auto token = scanner->get_token();
+    const auto& token = scanner->get_token();
     return token.get_type() == Token::Type::Eof;
 }
 
