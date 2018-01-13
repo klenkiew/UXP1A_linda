@@ -9,20 +9,23 @@ set(LIB_NAME LindaLib)
 set(APP_NAME LindaApp)
 set(TESTS_NAME LindaTests)
 set(INTEGRATION_TESTS_NAME LindaIntegrationTests)
+set(LINDA_OUTPUT_NAME LindaOutput)
 
 SET(BOOST_LIBRARYDIR "~/boost_1_65_1")
 
-find_package(Boost COMPONENTS unit_test_framework log system filesystem REQUIRED)
+find_package(Boost COMPONENTS unit_test_framework log system filesystem program_options REQUIRED)
 
 file(GLOB APP_SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(GLOB_RECURSE LIB_SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/library_src/*.cpp)
 file(GLOB_RECURSE TESTS_SOURCE_FILES ${PROJECT_SOURCE_DIR}/tests_src/unit_tests/*.cpp)
 file(GLOB_RECURSE INTEGRATION_TESTS_SOURCE_FILES ${PROJECT_SOURCE_DIR}/tests_src/integration_tests/*.cpp)
+file(GLOB_RECURSE LINDA_OUTPUT_SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/linda_output/*.cpp)
 
 message(STATUS "APP_FILES " ${APP_SOURCE_FILES})
 message(STATUS "LIB_FILES " ${LIB_SOURCE_FILES})
 message(STATUS "TESTS_FILES " ${TESTS_SOURCE_FILES})
 message(STATUS "INTEGRATION_TESTS_FILES " ${INTEGRATION_TESTS_SOURCE_FILES})
+message(STATUS "LINDA_OUTPUT_FILES " ${LINDA_OUTPUT_SOURCE_FILES})
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 set(LIBS ${Boost_LIBRARIES} pthread rt)
@@ -32,6 +35,9 @@ target_link_libraries(${LIB_NAME} ${LIBS})
 
 add_executable(${APP_NAME} ${APP_SOURCE_FILES})
 target_link_libraries(${APP_NAME} ${LIB_NAME} ${LIBS})
+
+add_executable(${LINDA_OUTPUT_NAME} ${LINDA_OUTPUT_SOURCE_FILES})
+target_link_libraries(${LINDA_OUTPUT_NAME} ${LIB_NAME} ${LIBS})
 
 add_executable(${TESTS_NAME} ${TESTS_SOURCE_FILES})
 target_link_libraries(${TESTS_NAME} ${LIB_NAME} ${LIBS})
