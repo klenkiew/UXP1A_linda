@@ -63,9 +63,17 @@ BOOST_AUTO_TEST_CASE(parser_parses_tuple_string_template_with_operator)
 
 BOOST_AUTO_TEST_CASE(parser_parses_tuple_string_template_with_wildcard)
 {
-    auto tuple_template = get_parsed_tuple_template_element("string:>\"abc*\"");
+    auto tuple_template = get_parsed_tuple_template_element("string:\"abc*\"");
     BOOST_TEST(tuple_template->matches(std::string("abcasdasdasdasd")));
     BOOST_TEST(!tuple_template->matches(std::string("abbdfgdfgdfg")));
+}
+
+BOOST_AUTO_TEST_CASE(wildcard_can_replace_multiple_characters)
+{
+    auto tuple_template = get_parsed_tuple_template("(string:\"l*\", integer:>0)");
+    auto tuple_matches = get_parsed_tuple("(\"lol\", 2)");
+
+    BOOST_TEST(tuple_template->matches(*tuple_matches));
 }
 
 BOOST_AUTO_TEST_CASE(parser_parses_tuple_template)

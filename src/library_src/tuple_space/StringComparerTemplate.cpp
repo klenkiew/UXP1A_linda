@@ -36,7 +36,7 @@ std::regex& StringComparerTemplate::getRegex()
 std::string StringComparerTemplate::wildcard_to_regex(const std::string &wildcard_string)
 {
     std::string escaped = escape_regex(wildcard_string);
-    boost::replace_all(escaped, "\\*", "*");
+    boost::replace_all(escaped, "\\*", ".*");
     return "^" + escaped + "$";
 }
 
