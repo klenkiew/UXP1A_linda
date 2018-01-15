@@ -59,7 +59,7 @@ void TupleSpace::linda_output(std::string tuple)
     // nobody waits for this kind of tuple, write it into tuples_file
     { // tuples_file exclusive scope
         ExclusiveFileAccessor tuples_file(tuples_path);
-        tuples_file.append(tuple + "\n\n");
+        tuples_file.append(tuple + "\n");
         BOOST_LOG_TRIVIAL(info) << "Data: " << tuple  << " written to the tuples file";
     }
 }
