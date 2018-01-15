@@ -7,15 +7,24 @@
 #include <pipes/exceptions/NamedPipeTimeoutException.h>
 #include <thread>
 #include <string>
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
 #include "linda_api/LindaApi.h"
 
 TupleSpace::TupleSpace(const std::string &name)
     : tuple_space_name(name)
 {
+    namespace fs = boost::filesystem;
     std::string home_dir = get_home_dir_path();
-    std::string common_files_path = home_dir + "/linda_" + tuple_space_name + "_";
-    tuples_path = common_files_path + "tuples";
-    templates_path = common_files_path + "templates";
+    const auto separator = fs::path::preferred_separator;
+
+    const std::string common_files_directory_path = home_dir + separator + ".linda_tuple_spaces"
+                                          + separator + tuple_space_name;
+    pipes_path = common_files_directory_path + separator + "pipes";
+    fs::create_directories(fs::path(pipes_path));
+
+    tuples_path = common_files_directory_path + separator + "tuples";
+    templates_path = common_files_directory_path + separator + "templates";
 }
 
 void TupleSpace::reset()
@@ -42,15 +51,11 @@ void TupleSpace::linda_output(std::string tuple)
                 if (read_type == 'I') {
                     // input - discard this tuple
                     send_tuple(tuple, template_with_fifo.second);
-                    BOOST_LOG_TRIVIAL(info) << "Data: " << tuple  << " sent to the fifo " << template_with_fifo.second
-                                << " [input operation]";
                     return;
                 }
                 if (read_type == 'R') {
                     // read - keep this tuple
                     send_tuple(tuple, template_with_fifo.second);
-                    BOOST_LOG_TRIVIAL(info) << "Data: " << tuple  << " sent to the fifo " << template_with_fifo.second
-                                << " [read operation]";
                     continue;
                 }
             }
@@ -109,9 +114,18 @@ std::unique_ptr<TupleTemplate> TupleSpace::get_parsed_tuple_template(const std::
 
 void TupleSpace::send_tuple(const std::string &tuple, const std::string &fifo)
 {
-    NamedPipe pipe(fifo);
-    pipe.open(NamedPipe::Mode::Write, false); // open in nonblocking mode
-    pipe.write(tuple);
+    try
+    {
+        NamedPipe pipe(pipes_path + boost::filesystem::path::preferred_separator + fifo);
+        pipe.open(NamedPipe::Mode::Write, false); // open in nonblocking mode
+        pipe.write(tuple);
+        BOOST_LOG_TRIVIAL(info) << "Data: " << tuple  << " sent to the fifo " << fifo;
+    }
+    catch (const NamedPipeException& e)
+    {
+        BOOST_LOG_TRIVIAL(warning) << "Failed to write the tuple " << tuple << " to the pipe " << fifo;
+        BOOST_LOG_TRIVIAL(debug) << "Exception: " << e.what();
+    }
 }
 
 std::string TupleSpace::linda_input(std::string pattern, int timeout)
@@ -156,7 +170,7 @@ std::string TupleSpace::tuple_read_util(const std::string &pattern, int timeout,
     }
 
     std::string read_tuple;
-    NamedPipe pipe(fifo_name);
+    NamedPipe pipe(pipes_path + boost::filesystem::path::preferred_separator + fifo_name);
     pipe.createIfNotExists();
     BOOST_LOG_TRIVIAL(info) << "No tuple found in the file, creating a named pipe: " << fifo_name;
     // open pipe

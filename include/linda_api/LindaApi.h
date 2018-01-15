@@ -27,13 +27,13 @@ public:
 private:
     std::string tuple_space_name;
     std::string tuples_path;
+    std::string pipes_path;
     std::string templates_path;
 
     std::string get_home_dir_path();
 
     std::vector<std::pair<std::unique_ptr<TupleTemplate>, std::string>>
     get_template_with_fifo_pairs(const ExclusiveFileAccessor &file);
-
     std::vector<std::pair<std::unique_ptr<Tuple>, std::string>> get_tuples(const ExclusiveFileAccessor &tuples_file);
     void send_tuple(const std::string &tuple, const std::string &fifo);
     std::unique_ptr<TupleTemplate> get_parsed_tuple_template(const std::string &input);
