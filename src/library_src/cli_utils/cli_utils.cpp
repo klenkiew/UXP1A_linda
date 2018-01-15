@@ -7,8 +7,12 @@
 #include <pipes/exceptions/NamedPipeTimeoutException.h>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
 
 namespace po = boost::program_options;
+namespace logging = boost::log;
 
 void invoke_safe(const std::function<void()>& function)
 {
@@ -106,4 +110,50 @@ std::string get_tuple_space_name(const po::variables_map& vm, const std::string&
                                 << default_tuple_space << " assumed";
     }
     return tuple_space_name;
+}
+
+logging::trivial::severity_level get_log_level_by_string(const std::string &logging_level)
+{
+    if (logging_level == "trace")
+        return logging::trivial::trace;
+    if (logging_level == "debug")
+        return logging::trivial::debug;
+    if (logging_level == "info")
+        return logging::trivial::info;
+    if (logging_level == "warning")
+        return logging::trivial::warning;
+    if (logging_level == "error")
+        return logging::trivial::error;
+    if (logging_level == "fatal")
+        return logging::trivial::fatal;
+
+    BOOST_LOG_TRIVIAL(warning) << "Invalid logging level option given. Assumed 'info' logging level.";
+    return logging::trivial::info;
+}
+
+void set_log_level_internal(const logging::trivial::severity_level& level)
+{
+    logging::core::get()->set_filter
+            (
+                    logging::trivial::severity >= level
+            );
+}
+
+void set_log_level(const boost::program_options::variables_map &vm)
+{
+    if (vm.count("verbose"))
+    {
+        set_log_level_internal(logging::trivial::trace);
+        return;
+    }
+
+    if (!vm.count("log"))
+    {
+        // default log level - info
+        set_log_level_internal(logging::trivial::info);
+        return;
+    }
+
+    const std::string& logging_level = vm["log"].as<std::string>();
+    set_log_level_internal(get_log_level_by_string(logging_level));
 }

@@ -9,6 +9,7 @@ constexpr auto default_tuple_space = "test_space";
 
 void invoke_safe(const std::function<void()>& function);
 bool try_get_tuple_template(const boost::program_options::variables_map& vm, std::string &tuple);
+void set_log_level(const boost::program_options::variables_map &map);
 
 std::string get_tuple_space_name(const boost::program_options::variables_map& vm,
                                  const std::string& default_value = default_tuple_space);

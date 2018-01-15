@@ -16,12 +16,16 @@ int main(int argc, char** argv)
     desc.add_options()
             ("help,h", "produce this help message")
             ("timeout,t", po::value<int>(), "specify a timeout for the operation (in seconds)")
-            ("verbose,v", "set a verbose logging level")
+            ("log,l", po::value<std::string>(),
+             "set the logging level, possible values: ['trace', 'debug', 'info', 'warning', 'error', 'fatal'")
+            ("verbose,v", "use a verbose logging level (equivalent to '--log trace'")
             ("tuple_space,s", po::value<std::string>(), "specify the name of the tuple space which is to be used");
 
     po::variables_map vm;
     if (!handle_arguments(argc, argv, desc, vm))
         return 0;
+
+    set_log_level(vm);
 
     if (vm.count("help"))
     {
