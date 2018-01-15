@@ -1,0 +1,4 @@
+# delay | operation | tuple/template | optional timeout
+5 R '(string:*)' 2
+3 I '(string:*)' 2
+4 O '("abc")'
