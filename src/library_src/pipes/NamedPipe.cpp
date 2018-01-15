@@ -47,12 +47,12 @@ void NamedPipe::open(NamedPipe::Mode mode, bool blocking)
 
 void NamedPipe::write(const std::string &data)
 {
-    BOOST_LOG_TRIVIAL(debug) << "Data to write: " + data;
+    BOOST_LOG_TRIVIAL(debug) << "NamedPipe::write. Data: " + data;
 
     if (::write(fifo_descriptor, data.c_str(), data.length()) < data.length())
         throw_on_error("Error during writing to a pipe.");
 
-    BOOST_LOG_TRIVIAL(debug) << "Data written: " + data;
+    BOOST_LOG_TRIVIAL(debug) << "Data: " <<  data << " written to the pipe " << this->fifo_path;
 }
 
 
@@ -84,12 +84,13 @@ std::string NamedPipe::read()
     const int buffer_size = get_fifo_buffer_size();
     std::vector<char> buffer((unsigned long) buffer_size);
     ssize_t bytes_read = ::read(fifo_descriptor, &buffer[0], (size_t) buffer_size);
-    BOOST_LOG_TRIVIAL(debug) << "Bytes read: " + std::to_string(bytes_read) << std::endl;
 
     if (bytes_read < 0)
         throw NamedPipeException("Cannot read from a pipe.");
 
-    return std::string(buffer.begin(), buffer.begin() + bytes_read);
+    const auto& output = std::string(buffer.begin(), buffer.begin() + bytes_read);
+    BOOST_LOG_TRIVIAL(debug) << "Data: " << output << " read from the pipe " << this->fifo_path;
+    return output;
 }
 
 std::string NamedPipe::read(int timeout_seconds)

@@ -106,7 +106,7 @@ std::string get_tuple_space_name(const po::variables_map& vm, const std::string&
     else
     {
         tuple_space_name = default_value;
-        BOOST_LOG_TRIVIAL(info) << "No tuple space name given. The default value: "
+        BOOST_LOG_TRIVIAL(warning) << "No tuple space name given. The default value: "
                                 << default_tuple_space << " assumed";
     }
     return tuple_space_name;

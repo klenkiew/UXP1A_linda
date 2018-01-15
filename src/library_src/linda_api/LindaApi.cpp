@@ -42,11 +42,15 @@ void TupleSpace::linda_output(std::string tuple)
                 if (read_type == 'I') {
                     // input - discard this tuple
                     send_tuple(tuple, template_with_fifo.second);
+                    BOOST_LOG_TRIVIAL(info) << "Data: " << tuple  << " sent to the fifo " << template_with_fifo.second
+                                << " [input operation]";
                     return;
                 }
                 if (read_type == 'R') {
                     // read - keep this tuple
                     send_tuple(tuple, template_with_fifo.second);
+                    BOOST_LOG_TRIVIAL(info) << "Data: " << tuple  << " sent to the fifo " << template_with_fifo.second
+                                << " [read operation]";
                     continue;
                 }
             }
@@ -56,6 +60,7 @@ void TupleSpace::linda_output(std::string tuple)
     { // tuples_file exclusive scope
         ExclusiveFileAccessor tuples_file(tuples_path);
         tuples_file.append(tuple + "\n\n");
+        BOOST_LOG_TRIVIAL(info) << "Data: " << tuple  << " written to the tuples file";
     }
 }
 
@@ -133,6 +138,7 @@ std::string TupleSpace::tuple_read_util(const std::string &pattern, int timeout,
                 std::string matching_tuple = tuple_with_string.second;
                 if (is_input)
                     tuples_file.erase(matching_tuple + "\n");
+                BOOST_LOG_TRIVIAL(info) << "Data: " + matching_tuple << " read from the tuples file";
                 return matching_tuple;
             }
         }
@@ -152,6 +158,7 @@ std::string TupleSpace::tuple_read_util(const std::string &pattern, int timeout,
     std::string read_tuple;
     NamedPipe pipe(fifo_name);
     pipe.createIfNotExists();
+    BOOST_LOG_TRIVIAL(info) << "No tuple found in the file, creating a named pipe: " << fifo_name;
     // open pipe
     try {
         pipe.open(NamedPipe::Mode::Read, timeout);
@@ -166,6 +173,7 @@ std::string TupleSpace::tuple_read_util(const std::string &pattern, int timeout,
     // read from pipe
     try {
         read_tuple = pipe.read(timeout);
+        BOOST_LOG_TRIVIAL(info) << "Tuple: " << read_tuple << " read from the pipe " << fifo_name;
     } catch (const NamedPipeTimeoutException &e) {
         ExclusiveFileAccessor templates_file(templates_path);
         templates_file.erase(template_entry);
