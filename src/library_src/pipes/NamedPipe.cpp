@@ -49,6 +49,12 @@ void NamedPipe::write(const std::string &data)
 {
     BOOST_LOG_TRIVIAL(debug) << "NamedPipe::write. Data: " + data;
 
+    if (data.length() > fifo_buffer_size)
+    {
+        BOOST_LOG_TRIVIAL(debug) << "Fifo buffer size (" << std::to_string(fifo_buffer_size) << ") exceeded";
+        throw NamedPipeException("Data length bigger than the fifo buffer size.");
+    }
+
     if (::write(fifo_descriptor, data.c_str(), data.length()) < data.length())
         throw_on_error("Error during writing to a pipe.");
 
