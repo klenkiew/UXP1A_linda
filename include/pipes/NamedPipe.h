@@ -21,6 +21,7 @@ public:
     void createIfNotExists();
     void open(Mode mode, bool blocking = true);
     void open(Mode mode, int timeout_seconds);
+    void set_nonblocking();
     int close();
     void destroy();
 

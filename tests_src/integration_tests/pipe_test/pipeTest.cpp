@@ -14,21 +14,6 @@
 
 namespace
 {
-    class PipeDestroyer
-    {
-    public:
-        PipeDestroyer(NamedPipe &pipe) : pipe(pipe)
-        {}
-
-        virtual ~PipeDestroyer()
-        {
-            pipe.destroy();
-        }
-
-    private:
-        NamedPipe& pipe;
-    };
-
     boost::random::mt19937 rng(
             static_cast<const uint32_t &>(std::chrono::system_clock::now().time_since_epoch().count()));
 

@@ -1,5 +1,6 @@
 #include <sstream>
 #include <pipes/NamedPipe.h>
+#include <pipes/PipeDestroyer.h>
 #include <unistd.h>
 #include <pipes/exceptions/NamedPipeException.h>
 #include <boost/log/trivial.hpp>
@@ -187,11 +188,11 @@ std::string TupleSpace::tuple_read_util(const std::string &pattern, int timeout,
     // open pipe
     try {
         pipe.open(NamedPipe::Mode::Read, timeout);
-    } catch (NamedPipeTimeoutException &e) {
+    } catch (NamedPipeException &e) {
         ExclusiveFileAccessor templates_file(templates_path);
+        // must be placed here - so that the pipe is destroyed before the file is unlocked (to prevent race conditions)
+        PipeDestroyer destroyer(pipe);
         templates_file.erase(template_entry);
-        pipe.close();
-        pipe.destroy();
         throw;
     }
 
@@ -199,20 +200,33 @@ std::string TupleSpace::tuple_read_util(const std::string &pattern, int timeout,
     try {
         read_tuple = pipe.read(timeout);
         BOOST_LOG_TRIVIAL(info) << "Tuple: " << read_tuple << " read from the pipe " << fifo_name;
-    } catch (const NamedPipeTimeoutException &e) {
+    } catch (const NamedPipeException &e) {
         ExclusiveFileAccessor templates_file(templates_path);
+        PipeDestroyer destroyer(pipe);
         templates_file.erase(template_entry);
-        pipe.close();
-        pipe.destroy();
+        pipe.set_nonblocking();
+        try
+        {
+            // we must check the pipe again in case someone placed a tuple before we catched the exception
+            // which could case tuples to disappear
+            read_tuple = pipe.read();
+            BOOST_LOG_TRIVIAL(info) << "Tuple: " << read_tuple << " read after timeout from the pipe " << fifo_name;
+            return read_tuple;
+        }
+        catch (const NamedPipeException &e)
+        {
+            // probably EAGAIN - no data in the pipe - usual situation so we just ignore it
+            BOOST_LOG_TRIVIAL(trace) << "Exception after non-blocking read after timeout from the pipe " << fifo_name
+                        << "(nothing unusual): "<< e.what();
+        }
         throw;
     }
 
 
     // tuple successfully read - remove template entry
     ExclusiveFileAccessor templates_file(templates_path);
+    PipeDestroyer destroyer(pipe);
     templates_file.erase(template_entry);
-    pipe.close();
-    pipe.destroy();
     return read_tuple;
 }
 

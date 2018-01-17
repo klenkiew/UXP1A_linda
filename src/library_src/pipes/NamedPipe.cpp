@@ -187,6 +187,19 @@ void NamedPipe::open(NamedPipe::Mode mode, int timeout_seconds)
         throw NamedPipeTimeoutException("Open timed out.");
 }
 
+void NamedPipe::set_nonblocking()
+{
+    const auto saved_flags = fcntl(fifo_descriptor, F_GETFL);
+
+    if (saved_flags < 0)
+        throw NamedPipeException("Cannot set to nonblocking mode - fcntl failed. ERRNO: " + std::to_string(errno));
+
+    // Set the new flags with O_NONBLOCK
+    const auto result = fcntl(fifo_descriptor, F_SETFL, saved_flags & O_NONBLOCK);
+    if (result < 0)
+        throw NamedPipeException("Cannot set to nonblocking mode - fcntl failed. ERRNO: " + std::to_string(errno));
+}
+
 NamedPipe::~NamedPipe()
 {
     close();
