@@ -45,7 +45,7 @@ int main(int argc, char** argv)
         invoke_safe([&tuple, timeout, &tuple_space_name]() -> void
         {
             TupleSpace tuple_space(tuple_space_name);
-            std::cout << tuple_space.linda_input(tuple, timeout) << std::endl;
+            std::cout << "Received tuple: " << tuple_space.linda_input(tuple, timeout) << std::endl;
         });
     }
     else
@@ -54,7 +54,7 @@ int main(int argc, char** argv)
         {
             TupleSpace tuple_space(tuple_space_name);
             // TODO should be a version of linda_input without the 'timeout' argument
-            std::cout << tuple_space.linda_input(tuple, INT_MAX) << std::endl;
+            std::cout << "Received tuple: " << tuple_space.linda_input(tuple, INT_MAX) << std::endl;
         });
     }
 }
