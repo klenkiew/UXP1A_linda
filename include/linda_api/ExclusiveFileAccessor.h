@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <iostream>
-#include "SystemCallException.hpp"
+#include "FileAccessException.hpp"
 #include "tuple_space/parsing/TupleParser.h"
 #include "tuple_space/parsing/TupleTemplateElementParser.h"
 
@@ -25,10 +25,10 @@ public:
     {
         fd = open(filename.c_str(), O_RDWR | O_CREAT, 0777);
         if (fd == -1)
-            throw SystemCallException("File open error");
+            throw FileAccessException("File open error");
 
         if (flock(fd, LOCK_EX) == -1) {
-            throw SystemCallException("File lock corruption! Errno: " + std::to_string(errno));
+            throw FileAccessException("File lock corruption! Errno: " + std::to_string(errno));
         }
     }
 
@@ -51,14 +51,14 @@ public:
         std::string file_content;
 
         lseek(fd, 0, SEEK_SET);
-        int char_read;
+        ssize_t char_read;
         while ( (char_read = read(fd, buffer, BUFFER_SIZE)) > 0)
         {
             file_content.append(buffer, char_read);
         }
 
         if (char_read == -1) {
-            throw SystemCallException("File read error!");
+            throw FileAccessException("File read error!");
         }
 
         return file_content;
@@ -68,7 +68,7 @@ public:
     {
         lseek(fd, 0, SEEK_END);
         if (write(fd, content.c_str(), content.size()) == -1) {
-            throw SystemCallException("File write error!");
+            throw FileAccessException("File write error!");
         }
     }
 
@@ -77,7 +77,7 @@ public:
         ftruncate(fd, 0);
         lseek(fd, 0, SEEK_SET);
         if (write(fd, new_file_content.c_str(), new_file_content.size()) == -1) {
-            throw SystemCallException("File write error!");
+            throw FileAccessException("File write error!");
         }
 
     }

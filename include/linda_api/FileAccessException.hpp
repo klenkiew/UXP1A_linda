@@ -3,9 +3,9 @@
 
 #include <stdexcept>
 
-class SystemCallException : std::runtime_error {
+class FileAccessException : std::runtime_error {
 public:
-    SystemCallException(const std::string &name)
+    FileAccessException(const std::string &name)
             : std::runtime_error(name) { }
 };
 
