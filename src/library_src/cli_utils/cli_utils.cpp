@@ -42,6 +42,10 @@ void invoke_safe(const std::function<void()>& function)
     {
         std::cout << "Operation failed - an error occurred during pipe operations: " << ex.what() << std::endl;
     }
+    catch (const std::runtime_error& ex)
+    {
+        std::cout << "Runtime error: " << ex.what() << std::endl;
+    }
     catch (const std::exception& ex)
     {
         std::cout << "Fatal error: " << ex.what() << std::endl;
