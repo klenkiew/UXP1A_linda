@@ -3,10 +3,9 @@
 
 #include <stdexcept>
 
-class FileAccessException : std::runtime_error {
+class FileAccessException : public std::runtime_error {
 public:
-    FileAccessException(const std::string &name)
-            : std::runtime_error(name) { }
+    using std::runtime_error::runtime_error;
 };
 
 

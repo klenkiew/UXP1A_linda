@@ -10,6 +10,7 @@
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
+#include <linda_api/FileAccessException.hpp>
 
 namespace po = boost::program_options;
 namespace logging = boost::log;
