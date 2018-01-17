@@ -1,7 +1,6 @@
 #ifndef LINDAAPI_H
 #define LINDAAPI_H
 
-#include <string>
 #include <fstream>
 #include <unistd.h>
 #include <sys/types.h>
@@ -11,6 +10,7 @@
 #include <string>
 #include "linda_api/ExclusiveFileAccessor.h"
 #include "pipes/NamedPipe.h"
+#include "TupleTemplateInfo.h"
 
 
 class TupleSpace
@@ -32,14 +32,15 @@ private:
 
     std::string get_home_dir_path();
 
-    std::vector<std::pair<std::unique_ptr<TupleTemplate>, std::string>>
-    get_template_with_fifo_pairs(const ExclusiveFileAccessor &file);
+    std::vector<TupleTemplateInfo> get_template_with_fifo_pairs(const ExclusiveFileAccessor &file);
     std::vector<std::pair<std::unique_ptr<Tuple>, std::string>> get_tuples(const ExclusiveFileAccessor &tuples_file);
-    void send_tuple(const std::string &tuple, const std::string &fifo);
+    bool send_tuple(const std::string &tuple, const std::string &fifo);
     std::unique_ptr<TupleTemplate> get_parsed_tuple_template(const std::string &input);
     std::unique_ptr<Tuple> get_parsed_tuple(const std::string &input);
     std::string get_random_string(std::string::size_type length);
     std::string tuple_read_util(const std::string &pattern, int timeout, bool is_input);
+    void remove_templates_from_file(ExclusiveFileAccessor& templates_file,
+                                                std::vector<TupleTemplateInfo*> templates);
 };
 
 #endif // LINDAAPI_H

@@ -43,23 +43,29 @@ void TupleSpace::linda_output(std::string tuple)
     { // templates_file exclusive scope
         ExclusiveFileAccessor templates_file(templates_path);
         auto templates = get_template_with_fifo_pairs(templates_file);
+        std::vector<TupleTemplateInfo*> templates_to_remove;
 
-        for (auto &&template_with_fifo : templates) {
-            if (template_with_fifo.first->matches(*parsed_tuple)) {
+        for (auto&& template_with_fifo : templates) {
+            if (template_with_fifo.get_tuple_template().matches(*parsed_tuple)) {
+                templates_to_remove.push_back(&template_with_fifo);
                 // get first character of FIFO name. It indicates if it is read or input
-                char read_type = template_with_fifo.second.at(0);
+                char read_type = template_with_fifo.get_fifo_name().at(0);
                 if (read_type == 'I') {
                     // input - discard this tuple
-                    send_tuple(tuple, template_with_fifo.second);
-                    return;
+                    if (send_tuple(tuple, template_with_fifo.get_fifo_name()))
+                    {
+                        remove_templates_from_file(templates_file, std::move(templates_to_remove));
+                        return;
+                    }
+                    // write failed, so the tuple isn't consumed
                 }
-                if (read_type == 'R') {
+                else if (read_type == 'R') {
                     // read - keep this tuple
-                    send_tuple(tuple, template_with_fifo.second);
-                    continue;
+                    send_tuple(tuple, template_with_fifo.get_fifo_name());
                 }
             }
         }
+        remove_templates_from_file(templates_file, std::move(templates_to_remove));
     }
     // nobody waits for this kind of tuple, write it into tuples_file
     { // tuples_file exclusive scope
@@ -77,14 +83,13 @@ std::unique_ptr<Tuple> TupleSpace::get_parsed_tuple(const std::string &input)
     return output;
 }
 
-std::vector<std::pair<std::unique_ptr<TupleTemplate>, std::string>>
-TupleSpace::get_template_with_fifo_pairs(const ExclusiveFileAccessor &file)
+std::vector<TupleTemplateInfo> TupleSpace::get_template_with_fifo_pairs(const ExclusiveFileAccessor &file)
 {
     std::stringstream file_content(file.read_whole_file());
     std::string fifo_name;
     std::string template_as_string;
     std::string line;
-    std::vector<std::pair<std::unique_ptr<TupleTemplate>, std::string>> tuples_with_fifos;
+    std::vector<TupleTemplateInfo> tuples_with_fifos;
 
     while (std::getline(file_content, line))
     {
@@ -95,9 +100,11 @@ TupleSpace::get_template_with_fifo_pairs(const ExclusiveFileAccessor &file)
             continue;
 
         try {
-            tuples_with_fifos.emplace_back(get_parsed_tuple_template(template_as_string), fifo_name);
+            tuples_with_fifos.emplace_back(get_parsed_tuple_template(template_as_string),
+                                           fifo_name,
+                                           std::move(template_as_string));
         } catch (ParseException) {
-            BOOST_LOG_TRIVIAL(debug) << "get_template_with_fifo_pairs: " << fifo_name << " " << template_as_string;
+            BOOST_LOG_TRIVIAL(trace) << "get_template_with_fifo_pairs: " << fifo_name << " " << template_as_string;
             throw;
         }
     }
@@ -112,7 +119,7 @@ std::unique_ptr<TupleTemplate> TupleSpace::get_parsed_tuple_template(const std::
     return output;
 }
 
-void TupleSpace::send_tuple(const std::string &tuple, const std::string &fifo)
+bool TupleSpace::send_tuple(const std::string &tuple, const std::string &fifo)
 {
     try
     {
@@ -120,11 +127,15 @@ void TupleSpace::send_tuple(const std::string &tuple, const std::string &fifo)
         pipe.open(NamedPipe::Mode::Write, false); // open in nonblocking mode
         pipe.write(tuple);
         BOOST_LOG_TRIVIAL(info) << "Data: " << tuple  << " sent to the fifo " << fifo;
+        // write succeded
+        return true;
     }
     catch (const NamedPipeException& e)
     {
         BOOST_LOG_TRIVIAL(warning) << "Failed to write the tuple " << tuple << " to the pipe " << fifo;
         BOOST_LOG_TRIVIAL(debug) << "Exception: " << e.what();
+        // write failed
+        return false;
     }
 }
 
@@ -224,6 +235,23 @@ std::vector<std::pair<std::unique_ptr<Tuple>, std::string>> TupleSpace::get_tupl
         }
     }
     return tuples;
+}
+
+void TupleSpace::remove_templates_from_file(ExclusiveFileAccessor& templates_file,
+                                            std::vector<TupleTemplateInfo*> templates)
+{
+    if (templates.empty())
+        return;
+
+    std::string content = templates_file.read_whole_file();
+    for (const auto& template_info : templates)
+    {
+        const std::string& template_string = template_info->to_string();
+        const auto position = content.find(template_string);
+        if (position != std::string::npos)
+            content.erase(position, template_string.length() + 1); // + 1 to remove the new line character after the template
+    }
+    templates_file.rewrite_whole_file(content);
 }
 
 std::string TupleSpace::get_random_string(std::string::size_type length)
