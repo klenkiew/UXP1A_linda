@@ -47,5 +47,5 @@ int main(int argc, char** argv)
             BOOST_LOG_TRIVIAL(info) << "Tuple " << tuple << " placed successfully.";
         }
     });
-    std::cout << "All tuples placed in the tuple space." << std::endl;
+    std::cout << "All tuples handled." << std::endl;
 }
