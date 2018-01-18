@@ -1,6 +1,7 @@
 import random
 import subprocess
 import threading
+import sys
 from collections import namedtuple
 
 input_file_name = 'tasks'
@@ -12,10 +13,15 @@ timeout_program_option = '--timeout'
 tuple_space_name_program_option = '--tuple_space'
 
 
+# quick & dirty solution - but w/e
+no_log = False
+
+
 class Command:
-    def __init__(self, program_name, args):
+    def __init__(self, program_name, args, redirect_stdout_to=None):
         self.program_name = program_name
         self.args = args
+        self.redirect_stdout_to = redirect_stdout_to
 
     def __str__(self):
         return self.program_name + ' ' + str.join(' ', map(lambda arg: str(arg), self.args))
@@ -26,7 +32,10 @@ def get_command(task):
     args = [task.tuple, tuple_space_name_program_option + ' ' + tuple_space_name]
     if task.timeout is not None:
         args.append(timeout_program_option + ' ' + task.timeout)
-    return Command(program_name, args)
+    if no_log:
+        args.append("-l fatal")
+    stdout = task.stdout
+    return Command(program_name, args, stdout)
 
 
 def get_program_name(task):
@@ -40,13 +49,25 @@ def get_program_name(task):
 
 def run_command(command):
     command_str = str(command)
-    print("Executing command " + command_str + " ...")
-    subprocess.call([command_str], shell=True)
-    print("Command " + command_str + " executed successfully")
+    print("[Script runner] Executing command " + command_str + " ...")
+    stdout = get_stdout(command)
+    subprocess.call([command_str], shell=True, stdout=stdout)
+    print("[Script runner] Command " + command_str + " executed successfully")
+    if stdout is not None:
+        stdout.close()
+
+
+def get_stdout(command):
+    stdout = None
+    if command.redirect_stdout_to is not None:
+        stdout = open(command.redirect_stdout_to, 'w')
+    return stdout
 
 
 def main():
-    Task = namedtuple('Task', 'delay operation tuple timeout')
+    handle_arguments()
+
+    Task = namedtuple('Task', 'delay operation tuple timeout stdout')
     tasks = []
     # input file structure:
     # {delay} [R/I/O] {tuple} {timeout}?
@@ -61,7 +82,8 @@ def main():
             operation = parts[1]
             tuple = parts[2]
             timeout = parts[3] if len(parts) > 3 else None
-            tasks.append(Task(delay, operation, tuple, timeout))
+            stdout = parts[4] if len(parts) > 4 else None
+            tasks.append(Task(delay, operation, tuple, timeout, stdout))
 
     commands_with_delay = []
     for task in tasks:
@@ -72,6 +94,18 @@ def main():
         threading.Timer(command[1], run_command, [command[0]]).start()
 
     print("All commands timers started.")
+
+
+def handle_arguments():
+    # ugly solution with globals - :(
+    global no_log
+    global input_file_name
+    if len(sys.argv) > 1:
+        for arg in sys.argv[1:]:
+            if arg == "--no_log":
+                no_log = True
+            else:
+                input_file_name = arg
 
 
 if __name__ == "__main__":

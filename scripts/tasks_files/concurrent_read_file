@@ -1,0 +1,5 @@
+# delay | operation | tuple/template | optional timeout
+5 I '(integer:>2)' 2
+5 R '(integer:4)' 2
+5 R '(integer:*)' 2
+3 O '(4)'

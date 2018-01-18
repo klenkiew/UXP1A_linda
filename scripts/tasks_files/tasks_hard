@@ -1,0 +1,10 @@
+# delay | operation | tuple/template | optional timeout
+5 I '(string:*)' 2
+5 R '(string:*)' 2
+5 R '(string:*)' 2
+3 R '(integer:>2)' 1
+2 O '(1)'
+5 O '("a", 2, 3)'
+6 O '("abc")'
+6 O '("efghjk")'
+6 O '("mmmmmmmmmmmm")'
